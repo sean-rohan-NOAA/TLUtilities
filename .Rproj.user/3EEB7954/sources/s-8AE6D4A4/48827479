@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1537569235307.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "48827479",
+    "lastKnownWriteTime" : 1537569268,
+    "last_content_update" : 1537569268232,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/README.rmd",
+    "project_path" : "README.rmd",
+    "properties" : {
+        "cursorPosition" : "1,19",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1",
+        "working_dir" : "project"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
