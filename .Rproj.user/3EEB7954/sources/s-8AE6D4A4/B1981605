@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1536880402881.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B1981605",
+    "lastKnownWriteTime" : 1536880513,
+    "last_content_update" : 1536880513200,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/R/vertical_profiles.R",
+    "project_path" : "R/vertical_profiles.R",
+    "properties" : {
+        "cursorPosition" : "22,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled3"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

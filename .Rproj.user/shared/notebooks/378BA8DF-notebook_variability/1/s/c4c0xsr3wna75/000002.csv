@@ -1,0 +1,28 @@
+"0","```r
+for(i in 1:length(cruises)) {
+active_cruise <- subset(column_vars, cruise == cruises[i])
+photic_zone.plot <- ggplot() + geom_point(aes(x = active_cruise$startlon, y = active_cruise$startlat, color = active_cruise$z_od1)) + 
+        geom_polygon(aes(x = base_map$long, y = base_map$lat, group = base_map$group), fill = \"black\") + 
+  geom_text(aes(x = -157.5, y = 61.5, label = round(cruises[i]/100)), color = \"white\", hjust = 0.5, vjust = 0.5, fontface = \"bold\", family = \"Times\") +
+  coord_equal(
+    xlim = c(-179.2,-156),
+    ylim = c(53.5, 62.5),
+    expand = F
+  ) +
+  scale_y_continuous(name = \"Latitude\") +
+  scale_x_continuous(name = \"Longitude\") + 
+  scale_color_gradient2_tableau(name = expression(italic(Z[\"1%\"])), \"Temperature\", limits = c(0,82)) + 
+  theme(
+    legend.position = \"right\",
+    panel.background = element_rect(fill = NA, color = \"black\"),
+    panel.border = element_rect(fill = NA, color = \"black\"),
+    panel.grid.major = element_line(color = \"grey90\"),
+    axis.text = element_text(size = 12, family = \"Times\"),
+    axis.title = element_text(size = 12, face = \"bold\", family = \"Times\"),
+    legend.text = element_text(size = 12, family = \"Times\"),
+    legend.title = element_text(size = 12, face = \"bold\", family = \"Times\"))
+print(photic_zone.plot)
+}
+```"
+"1","Non Lab interpolation is deprecated
+"

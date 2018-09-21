@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1536937058978.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "7C1B02E7",
+    "lastKnownWriteTime" : 1536979155,
+    "last_content_update" : 1536979155688,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/R/surface_light.R",
+    "project_path" : "R/surface_light.R",
+    "properties" : {
+        "cursorPosition" : "6,73",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

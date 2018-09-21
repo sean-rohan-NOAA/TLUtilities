@@ -1,0 +1,5 @@
+"0","```r
+plot1 <- station_k_plot(x = profiles_df, station = \"L-27\", color = \"od\", silent = T)
+plot2 <- station_k_plot(x = profiles_df, station = \"D-01\", color = \"od\", silent = T)
+grid.arrange(plot1, plot2,ncol = 2)
+```"

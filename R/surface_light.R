@@ -1,0 +1,39 @@
+#' Find surface light measurements during casts
+#'
+#' Uses cast start and end times to find concurrent measurements obtained by the deck-mounted archival tag, including a buffer. The buffer is added around the start and end times, so a 30 second buffer = one minute.
+#'
+#' @param light.data Light measurements from the surface/deck archival tag.
+#' @param cast.data Haul event times indicating the start and end times for net deployment and retrival.
+#' @param time.buffer Time buffer before and after the start of the cast.
+
+
+surface_light <- function(light.data, cast.data, time.buffer = 30, ...) {
+
+  # Select and rename light and time columns
+  light.data <- light.data[,5:6]
+  colnames(light.data) <- c("surf_llight", "ctime")
+  light.data$surf_trans_llight <- convert_light(light.data$surf_llight)
+  light.data$vessel <- rep(cast.data$vessel[1], nrow(light.data))
+  light.data$cruise <- rep(cast.data$cruise[1], nrow(light.data))
+
+  # Create empty rows for cast direction (updown) and haul number
+  haul_count <- nrow(cast.data)
+
+  for(i in 1:haul_count) {
+    # Assign upcast or downcast to tag time
+    light.data$updown[light.data$ctime > (cast.data$downcast_start[i] - time.buffer) &
+                        light.data$ctime < (cast.data$downcast_start[i] + time.buffer)] <- "Downcast"
+    light.data$updown[light.data$ctime > (cast.data$upcast_start[i] - time.buffer) &
+                        light.data$ctime < (cast.data$upcast_end[i] + time.buffer)] <- "Upcast"
+    light.data$haul[light.data$ctime > (cast.data$downcast_start[i] - time.buffer) &
+                      light.data$ctime < (cast.data$upcast_end[i] + time.buffer)] <- cast.data$haul[i]
+  }
+
+  # Remove on-bottom and errant sampling not from casts
+  light.data <- subset(light.data, is.na(updown) == F)
+
+  # Geometric mean and geometric standard deviation surface light during casts
+  light.data <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = geometric.mean)
+
+  return(light.data)
+}

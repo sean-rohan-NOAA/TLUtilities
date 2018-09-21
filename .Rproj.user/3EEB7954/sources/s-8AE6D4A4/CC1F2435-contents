@@ -1,0 +1,224 @@
+#============================================================#
+# SURFACE IRRADIANCE MEASUREMENTS VERSUS IRRADIANCE FROM     #
+# PACKAGE 'insol'                                            #
+# 'insol' predicts irradiance in units of MJ * m^-2          #
+# Date started: 3/24/2017                                    #
+# Sean K. Rohan                                              #
+#============================================================#
+
+#=========================================================#
+# FUNCTION TO CALCULATE DEPTH-SPECIFIC LIGHT RATIOS       #
+# RELATIVE TO SHOALEST MEASUREMENT                        #
+# Will be used to model light = f(time,depth,conditions)  #
+#=========================================================#
+light_ratio <- function(x, base_depth = 0) {
+  hauls <- unique(x$haul)
+  
+  # Initiate data frame
+  output <- data.frame(haul = numeric(), 
+                       cdepth = numeric(), 
+                       updown = character(),
+                       llight = numeric(),
+                       trans_llight = numeric(),
+                       light_ratio = numeric(),
+                       ldepth = numeric(),
+                       ltemp = numeric(),
+                       quality = numeric(),
+                       k_linear = numeric(),
+                       k_column = numeric())
+  
+  for(u in 1:length(hauls)) {
+    active.haul <- subset(x, haul == hauls[u])
+    baseline_light_depth <- max(active.haul$trans_llight, na.rm = T)
+    active.haul$light_ratio <- active.haul$trans_llight/baseline_light_depth
+    active.haul$k_linear <- (log(active.haul$trans_llight/max(active.haul$trans_llight))) / (min(active.haul$cdepth) - active.haul$cdepth)
+    active.haul$k_column <- rep((log(min(active.haul$trans_llight)/max(active.haul$trans_llight))) / (min(active.haul$cdepth) - max(active.haul$cdepth)), nrow(active.haul))
+    
+    # Quality double-check... maybe delete?
+    if(max(diff(active.haul$cdepth)) <= 6 & min(active.haul$cdepth) <= 6) {
+      active.haul$quality <- rep(1, nrow(active.haul))
+    } else {
+      active.haul$quality <- rep(-999, nrow(active.haul))
+    }
+    output <- rbind(output, active.haul)
+  }
+  return(output)
+}
+#===================================================#
+#                        END                        #
+#===================================================#
+
+#===================================================#
+# Wrapper function to batch process light           #
+#===================================================#
+process_light_ratios <- function(surveys, suffix, ...) {
+  n.surveys <- nrow(surveys)
+  LR.out <- data.frame(haul = numeric(), 
+                       cdepth = numeric(), 
+                       updown = character(),
+                       llight = numeric(),
+                       trans_llight = numeric(),
+                       light_ratio = numeric(),
+                       ldepth = numeric(),
+                       ltemp = numeric(),
+                       quality = numeric(),
+                       vessel = numeric(),
+                       cruise = numeric())
+  for(t in 1:n.surveys) {
+    print(paste("Processing:", surveys$vessel[t], "-", surveys$year[t], sep = " "))
+    vert <- vertical_profiles(light.file = paste("./data/LightData/Data/", surveys$year[t],"/",surveys$region[t],"/",surveys$vessel[t],"/corr_MK9hauls.csv", sep = ""), 
+                              cast.file = paste("./data/LightData/Data/", surveys$year[t],"/",surveys$region[t],"/",surveys$vessel[t],"/CastTimes.csv", sep = ""), ...)
+    filtered <- filter_stepwise(x = vert$PROFILES, binsize = 2,...)
+    light_ratios <- light_ratio(filtered)
+    light_ratios$cruise <- rep(vert$CRUISE, nrow(light_ratios))
+    light_ratios$vessel <- rep(vert$VESSEL, nrow(light_ratios))
+    LR.out <- rbind(LR.out, light_ratios)
+  }
+  return(LR.out)
+}
+#===================================================#
+#                        END                        #
+#===================================================#
+
+#========================================================#
+# FUNCTION TO PLOT MULTIPLE LIGHT PROFILES               #
+#========================================================#
+interannual_light_plots <- function(x) {
+  x <- subset(x, quality > 0)
+  stations <- sort(unique(x$station))
+  
+  for(h in 1:length(stations)) { 
+    active_station <- subset(x, station == stations[h])
+    
+    survey_years <- c(2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014)
+    years_palette <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928')
+    names(years_palette) <- as.factor(survey_years)
+    # years_ramp <- colorRampPalette(c("#edf8b1","#7fcdbb","#2c7fb8"))
+    # survey_years <- sort(unique(x$year))
+    # years_palette <- years_ramp(length(survey_years))
+    # names(years_palette) <- as.factor(survey_years)
+    
+    gradient.breaks <- c(.00000001,.000001,.0001, .01, 1,100,10000)
+    
+    light.plot.limits <- c(convert_light(log(.2)/.1322), convert_light(log(4000000000000)/.1322))
+    
+    lightplot <- ggplot(data = active_station) +
+      geom_hline(aes(yintercept = 1e-5), color = "red", linetype = 2) +
+      geom_hline(aes(yintercept = 1e-6), color = "red", linetype = 2) +
+      geom_line(aes(x = cdepth, y = trans_llight, color = as.factor(year), group = interaction(year,haul)), size = 1) +
+      scale_color_manual(values = years_palette) +
+      scale_y_log10(limits = light.plot.limits, breaks = gradient.breaks, labels = magnitude_10) +
+      scale_x_reverse(breaks = c(150,100,50,0), limits = c(180,0), expand = c(0,0)) +
+      coord_flip() +
+      ylab("Light, µE m^-2 s^-1") +
+      xlab("Depth, m") +
+      ggtitle(stations[h]) +
+      theme(panel.background = element_rect(fill = NA, color = "black"),
+            panel.grid = element_blank())
+    print(lightplot)
+  }
+}
+#===================================================#
+#                        END                        #
+#===================================================#
+
+#==============================================#
+# GRID ARRANGE SHARED LEGEND PLOT              #
+#==============================================#
+grid_arrange_shared_legend <- function(...) {
+  plots <- list(...)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  grid.arrange(
+    do.call(arrangeGrob, lapply(plots, function(x)
+      x + theme(legend.position="none"))),
+    legend,
+    ncol = 1,
+    heights = unit.c(unit(1, "npc") - lheight, lheight))
+}
+#===========================================#
+#                        END                #
+#===========================================#
+
+#===================================================#
+# IMPORT AND PREPARE SURFACE LIGHT DATA             #
+# Similar to vertical_profiles()                    #
+#===================================================#
+surface_light <- function(light.file, cast.file, time.buffer = 40, ...) {
+  light_data <- read.csv(light.file, header = F)
+  light_data$ctime <- paste(light_data[,1], light_data[,2], sep = " ")
+  cast_data <- read.csv(cast.file)
+  # Convert cast times to POSIXct format, add 30 second offset to each cast time to avoid truncating cast data
+  cast_data$downcast_start <- as.POSIXct(strptime(cast_data$downcast_start, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage")) - time.buffer 
+  cast_data$downcast_end <- as.POSIXct(strptime(cast_data$downcast_end, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage")) +  time.buffer 
+  cast_data$upcast_start <- as.POSIXct(strptime(cast_data$upcast_start, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage")) - time.buffer  
+  cast_data$upcast_end <- as.POSIXct(strptime(cast_data$upcast_end, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage")) + time.buffer 
+  
+  # Convert light data to POSIXct format
+  light_data$ctime <- as.POSIXct(strptime(light_data$ctime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage"))
+  
+  # Offsets for tags set to the wrong time zone
+  if(year(cast_data$downcast_start[1]) == 2016) {
+    print("Correcting 2016")
+    light_data$ctime <- light_data$ctime + 3600
+  } else if(cast_data$vessel[1] == 162 & cast_data$cruise[1] == 201101) {
+    print("Correcting 162-201101")
+    light_data$ctime <- light_data$ctime + (3600*8)
+  }
+  
+  # Select and rename light and time columns
+  light_data <- light_data[,5:6]
+  colnames(light_data) <- c("surf_llight", "ctime")
+  light_data$surf_trans_llight <- convert_light(light_data$surf_llight)
+  light_data$vessel <- rep(cast_data$vessel[1], nrow(light_data))
+  light_data$cruise <- rep(cast_data$cruise[1], nrow(light_data))
+  # Create empty rows for cast direction (updown) and haul number
+  haul_count <- nrow(cast_data)
+  for(i in 1:haul_count) {
+    # Assign upcast or downcast to tag time
+    light_data$updown[light_data$ctime > cast_data$downcast_start[i] & light_data$ctime < cast_data$downcast_end[i]] <- "Downcast"
+    light_data$updown[light_data$ctime > cast_data$upcast_start[i] & light_data$ctime < cast_data$upcast_end[i]] <- "Upcast"
+    light_data$haul[light_data$ctime > cast_data$downcast_start[i] & light_data$ctime < cast_data$upcast_end[i]] <- cast_data$haul[i]
+  }
+  # Remove on-bottom and errant sampling not from casts
+  light_data <- subset(light_data, is.na(updown) == F)
+  
+  # Geometric mean and geometric standard deviation surface light during casts
+  light_data_casts <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light_data, FUN = geometric.mean)
+  light_cast_stdev <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light_data, FUN = geometric.sd)
+  colnames(light_cast_stdev)[5] <- "sd_surf_trans_llight"
+  light_cast_times <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light_data, FUN = mean)
+  light_cast_times$ctime <- with_tz(light_cast_times$ctime, tzone = "America/Anchorage")
+  light_data_casts <- merge(light_data_casts, light_cast_stdev)
+  light_data_casts <- merge(light_data_casts, light_cast_times)
+  return(light_data_casts)
+}
+#===================================================#
+#                        END                        #
+#===================================================#
+
+
+#==================================================================#
+# Function to extract surface light measurements during all casts  #
+#==================================================================#
+process_all_surface <- function(surveys) {
+  # Create data frame to store surface light output
+  for(t in 1:nrow(surveys)) {
+    deck_file <- list.files(path=paste("./data/LightData/Data/", surveys$year[t],"/",surveys$region[t],"/",surveys$vessel[t], sep = ""), pattern="^deck1_.*\\.csv")
+    if(length(deck_file) > 0) {
+      surface_profiles <- surface_light(light.file = paste("./data/LightData/Data/", surveys$year[t],"/",surveys$region[t],"/",surveys$vessel[t],"/",deck_file, sep = ""), 
+                                        cast.file = paste("./data/LightData/Data/", surveys$year[t],"/",surveys$region[t],"/",surveys$vessel[t],"/CastTimes.csv", sep = ""))
+      
+      if(t == 1){
+        surface.output <- surface_profiles
+      } else {
+      surface.output <- rbind(surface.output, surface_profiles)
+      }
+    }
+  }
+  return(surface.output)
+}
+#================================#
+#              END               # 
+#================================#

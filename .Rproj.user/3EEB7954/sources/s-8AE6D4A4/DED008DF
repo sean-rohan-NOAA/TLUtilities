@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1536937453739.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "DED008DF",
+    "lastKnownWriteTime" : 1536979379,
+    "last_content_update" : 1536979379345,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/R/process_all_surface.R",
+    "project_path" : "R/process_all_surface.R",
+    "properties" : {
+        "cursorPosition" : "5,84",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
