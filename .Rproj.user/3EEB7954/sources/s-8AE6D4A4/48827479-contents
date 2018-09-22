@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ## Introduction
@@ -18,7 +18,7 @@ This document demonstrates how light data is processed using TLUtilities and tra
 
 Install trawlllight and TLUtilities from their GitHub repositories. Functions in the trawllight pacakage have full documentation. Not all functions in TLUtilities currently have documentation.
 
-```{r cars}
+```{r install}
 library(devtools)
 # devtools::install_github("sean-rohan/trawllight")
 # devtools::install_github("sean-rohan/TLUtilities")

@@ -11,29 +11,12 @@ This document demonstrates how light data is processed using TLUtilities and tra
 Installing trawllight and TLUtilities
 -------------------------------------
 
-Use the devtools pacakge to install trawlllight and TLUtilities. Functions in the trawllight pacakage have full documentation. Not all functions in TLUtilities currently have documentation.
-
-``` r
-library(devtools)
-# devtools::install_github("sean-rohan/trawllight")
-# devtools::install_github("sean-rohan/TLUtilities")
-library(trawllight)
-library(TLUtilities)
-```
+Install trawlllight and TLUtilities from their GitHub repositories. Functions in the trawllight pacakage have full documentation. Not all functions in TLUtilities currently have documentation.
 
 Import directory structure
 --------------------------
 
 TLUtilities requires the user to pass a character vector indicating where light data are maintained. Each directory should contain a single file names CastTimes.csv, a single file named corr\_Mk9Hauls.csv, and any number (including zero) of files named deck\*\*.csv. The CastTimes.csv files contains survey event times associated with cast start/stop. The corr\_Mk9.Hauls.csv file contains data from a TDR-Mk9 archival tag with time-stamps shifted to match 'survey' time in cases where temporal drift occurred.
-
-``` r
-light.dir <- read.csv("D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv", stringsAsFactors = F, header = F)
-
-# Select EBS shelf directories
-light.dir <- light.dir[which(grepl("ebs", light.dir[,1])),1]
-
-print(light.dir[1:3])
-```
 
     ## [1] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_04\\ebs\\v_88"
     ## [2] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_04\\ebs\\v_89"
@@ -46,18 +29,7 @@ Run a wrapper function which runs `vertical_profiles`, `trawllight::convert_ligh
 
 Directories should be processed in batches of 4-6 vessel/cruise combinations to avoid issues with R memory limits (which can substantially increase processing time or cause R to crash). Downcasts and Upcasts should be processed separately. Here, processing is demonstrated for one vessel and one year. Change indexing of light.dir to process multiple years simultaneously (i.e. `light.dir[1:4]`). See below for description of values returned.
 
-``` r
-print(light.dir[10])
-```
-
     ## [1] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_08\\ebs\\v_89"
-
-``` r
-ebs <- process_all(dir.structure = light.dir[10],
-                   cast.dir = "Downcast",
-                   time.buffer = 20,
-                   silent = T)
-```
 
     ## [1] "No cast data found!"
 
@@ -68,17 +40,9 @@ Vertical profiles
 
 The `process_all()` function returns a list of four data frames: `loess_eval`, `atten_values`, `light_ratios`, and `resid_fit`.
 
-``` r
-print(names(ebs))
-```
-
     ## [1] "loess_eval"   "atten_values" "light_ratios" "resid_fit"
 
 `loess_eval` contains information about loess model fits between depth and log(light), with one record for each model that was fitted.
-
-``` r
-print(head(ebs$loess_eval))
-```
 
     ##    span_fit nobs      enp        rse smooth_trace fit_method vessel cruise
     ## 1 0.2910569   36 6.635794 0.17961858     7.888946       aicc     89 200801
@@ -97,10 +61,6 @@ print(head(ebs$loess_eval))
 
 `resid_fit` contains depth-specific residuals for each fitted loess model.
 
-``` r
-print(head(ebs$resid_fit))
-```
-
     ##      residual log_trans_llight cdepth vessel cruise haul
     ## 1 -0.13267069         5.771919      1     89 200801    1
     ## 2  0.12355795         5.375319     11     89 200801    1
@@ -110,10 +70,6 @@ print(head(ebs$resid_fit))
     ## 6  0.15090459         4.449919     19     89 200801    1
 
 `atten_values` contains instantaneous attenuation, by user-specified depth intervals, for each cast.
-
-``` r
-print(head(ebs$atten_values))
-```
 
     ##   depth      k_aicc vessel cruise haul
     ## 1  1.25 -0.06615312     89 200801    1
