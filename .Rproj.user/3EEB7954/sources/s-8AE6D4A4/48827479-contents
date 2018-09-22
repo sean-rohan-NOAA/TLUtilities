@@ -16,7 +16,7 @@ This document demonstrates how light data is processed using TLUtilities and tra
 
 ## Installing trawllight and TLUtilities
 
-Use the devtools pacakge to install trawlllight and TLUtilities. Functions in the trawllight pacakage have full documentation. Not all functions in TLUtilities currently have documentation.
+Install trawlllight and TLUtilities from their GitHub repositories. Functions in the trawllight pacakage have full documentation. Not all functions in TLUtilities currently have documentation.
 
 ```{r cars}
 library(devtools)
@@ -30,7 +30,7 @@ library(TLUtilities)
 
 TLUtilities requires the user to pass a character vector indicating where light data are maintained. Each directory should contain a single file names  CastTimes.csv, a single file named corr_Mk9Hauls.csv, and any number (including zero) of files named deck**.csv. The CastTimes.csv files contains survey event times associated with cast start/stop. The corr_Mk9.Hauls.csv file contains data from a TDR-Mk9 archival tag with time-stamps shifted to match 'survey' time in cases where temporal drift occurred.
 
-```{r}
+```{r import}
 light.dir <- read.csv("D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv", stringsAsFactors = F, header = F)
 
 # Select EBS shelf directories
@@ -46,7 +46,7 @@ Run a wrapper function which runs `vertical_profiles`, `trawllight::convert_ligh
 
 Directories should be processed in batches of 4-6 vessel/cruise combinations to avoid issues with R memory limits (which can substantially increase processing time or cause R to crash). Downcasts and Upcasts should be processed separately. Here, processing is demonstrated for one vessel and one year. Change indexing of light.dir to process multiple years simultaneously (i.e. `light.dir[1:4]`). See below for description of values returned.
 
-```{r}
+```{r processall}
 print(light.dir[10])
 
 ebs <- process_all(dir.structure = light.dir[10],
@@ -55,6 +55,8 @@ ebs <- process_all(dir.structure = light.dir[10],
                    silent = T)
 ```
 
+The warning "No cast data found!" indicates there were no useable data for one of the casts
+
 ## Vertical profiles
 
 The `process_all()` function returns a list of four data frames: `loess_eval`, `atten_values`, `light_ratios`, and `resid_fit`.
@@ -62,9 +64,13 @@ The `process_all()` function returns a list of four data frames: `loess_eval`, `
 print(names(ebs))
 ```
 
-`loess_eval` and `resid_fit` contain information about the fit of loess models fit between depth and log-transformed light, for each cast.
+`loess_eval` contains information about loess model fits between depth and log(light), with one record for each model that was fitted.
 ```{r}
 print(head(ebs$loess_eval))
+```
+
+`resid_fit` contains depth-specific residuals for each fitted loess model.
+```{r}
 print(head(ebs$resid_fit))
 ```
 

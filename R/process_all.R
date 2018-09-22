@@ -79,7 +79,9 @@ process_all <- function(dir.structure,
           light_ratios <- plyr::rbind.fill(light_ratios, lr.out)
         }
       } else {
-        print("No cast data found!")
+        if(silent == F) {
+          print("No cast data found!")
+        }
       }
     }
     } else {
