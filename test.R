@@ -38,6 +38,8 @@ print(tail(ebs$atten_values))
 # light_ratios contains ten columns.
 print(head(ebs$light_ratios))
 
+print(head(ebs$resid_fit))
+
 # The columns are:
 # Vessel, cruise, haul, and updown can be associated with georeferenced casts.
 # cdepth = depth bin

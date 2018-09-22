@@ -34,12 +34,6 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, ...) {
 
   # Geometric mean and geometric standard deviation surface light during casts
   light.data <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = geometric.mean)
-  # light_cast_stdev <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light_data, FUN = geometric.sd)
-  # colnames(light_cast_stdev)[5] <- "sd_surf_trans_llight"
-  # light_cast_times <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light_data, FUN = mean)
-  # light_cast_times$ctime <- with_tz(light_cast_times$ctime, tzone = "America/Anchorage")
-  # light_data_casts <- merge(light_data_casts, light_cast_stdev)
-  # light_data_casts <- merge(light_data_casts, light_cast_times)
 
   return(light.data)
 }

@@ -46,10 +46,14 @@ process_all_surface <- function(dir.list, ...) {
     #print("d")
 
     # Convert cast times to POSIXct format, add 30 second offset to each cast time to avoid truncating cast data
-    cast.times$downcast_start <- as.POSIXct(strptime(cast.times$downcast_start, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
-    cast.times$downcast_end <- as.POSIXct(strptime(cast.times$downcast_end, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
-    cast.times$upcast_start <- as.POSIXct(strptime(cast.times$upcast_start, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
-    cast.times$upcast_end <- as.POSIXct(strptime(cast.times$upcast_end, format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
+    cast.times$downcast_start <- as.POSIXct(strptime(cast.times$downcast_start,
+                                                     format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
+    cast.times$downcast_end <- as.POSIXct(strptime(cast.times$downcast_end,
+                                                   format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
+    cast.times$upcast_start <- as.POSIXct(strptime(cast.times$upcast_start,
+                                                   format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
+    cast.times$upcast_end <- as.POSIXct(strptime(cast.times$upcast_end,
+                                                 format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
     #print("e")
 
     #print(1)
