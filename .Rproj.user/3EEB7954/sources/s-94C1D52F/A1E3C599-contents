@@ -1,0 +1,55 @@
+# How many missing surface measurements? missing_surface_measurements.R
+
+#
+missing_surface <- subset(merge(light_ratios, orientation.combined))
+missing_measurements <- data.frame(table(missing_surface$cdepth)) 
+missing_measurements$Var1 <- as.numeric(as.character(missing_measurements$Var1))
+names(missing_measurements)[1] <- "cdepth"
+missing_surface.maxdepth <- aggregate(cdepth ~ vessel + cruise + haul, data = missing_surface, FUN = max)
+missing_surface.maxdepth <- aggregate(vessel ~ cdepth, data = missing_surface.maxdepth, FUN = length)
+missing_surface.maxdepth <- rbind(missing_surface.maxdepth, data.frame(cdepth = seq(1,(min(missing_surface.maxdepth$cdepth)-2),2), 
+                                                                       vessel = rep(0,(min(missing_surface.maxdepth$cdepth)-1)/2)))
+missing_surface.maxdepth$ngreater <- 0
+
+for(i in 1:nrow(missing_surface.maxdepth)) {
+  missing_surface.maxdepth$ngreater[i] <- sum(missing_surface.maxdepth$vessel[missing_surface.maxdepth$cdepth >= missing_surface.maxdepth$cdepth[i]])
+}
+
+
+missing_measurements_all <- merge(missing_surface.maxdepth, missing_measurements)
+missing_measurements_all$Quality <- "Any"
+
+
+missing_surface <- subset(merge(light_ratios, orientation.combined), quality == 1)
+missing_measurements <- data.frame(table(missing_surface$cdepth)) 
+missing_measurements$Var1 <- as.numeric(as.character(missing_measurements$Var1))
+names(missing_measurements)[1] <- "cdepth"
+missing_surface.maxdepth <- aggregate(cdepth ~ vessel + cruise + haul, data = missing_surface, FUN = max)
+missing_surface.maxdepth <- aggregate(vessel ~ cdepth, data = missing_surface.maxdepth, FUN = length)
+missing_surface.maxdepth <- rbind(missing_surface.maxdepth, data.frame(cdepth = seq(1,(min(missing_surface.maxdepth$cdepth)-2),2), 
+                                                                       vessel = rep(0,(min(missing_surface.maxdepth$cdepth)-1)/2)))
+missing_surface.maxdepth$ngreater <- 0
+
+for(i in 1:nrow(missing_surface.maxdepth)) {
+  missing_surface.maxdepth$ngreater[i] <- sum(missing_surface.maxdepth$vessel[missing_surface.maxdepth$cdepth >= missing_surface.maxdepth$cdepth[i]])
+}
+
+missing_measurements_good <- merge(missing_surface.maxdepth, missing_measurements)
+missing_measurements_good$Quality <- "Good"
+
+1-missing_measurements_good$Freq/missing_measurements_good$ngreater
+1-missing_measurements_all$Freq/missing_measurements_all$ngreater
+
+missing_measurements <- rbind(missing_measurements_all, missing_measurements_good)
+names(missing_measurements)[ncol(missing_measurements)] <- "Continuity"
+
+png("./figures/proportion_omitted_stepwise.png", width = 6, height = 4, units = "in", res = 300)
+ggplot(data = missing_measurements) + geom_line(aes(x = cdepth, y = 1- Freq/ngreater, linetype = Continuity, color = Continuity), size = rel(1.5)) +
+  scale_x_continuous(name = "Depth (m)", expand = c(0.01,0.01)) +
+  scale_y_continuous("Proportion missing or omitted)", expand = c(0.001,0.001)) +
+  scale_color_manual(values = c("black", "grey50")) +
+  theme(panel.background = element_rect(fill = NA, color = "black"),
+        panel.border = element_rect(fill = NA, color = "black"),
+        axis.text = element_text(family = "serif", size = 12),
+        axis.title = element_text(family = "serif", size = 12))
+dev.off()

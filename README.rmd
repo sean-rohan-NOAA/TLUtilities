@@ -78,7 +78,7 @@ The `time_adjustments` function adjusts timestamps from the surface light meter 
 All directories can be processed in one function call. The function should automatically ignore years where no deck**.csv file is found in a directory. Measurements obtained during upcasts and downcasts can be obtained at the same time. This code only processes eight vessel/cruises (for a reason):
 
 ```{r}
-ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = F, time.buffer = 30)
+ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = F, time.buffer = 30, agg.fun = geometric.mean)
 ```
 Note that `time_adjustments` applied a user-specified correction to 162-201101.
 
@@ -176,9 +176,7 @@ Arguments passed to the direct method function are:
 
 ```{r}
 library(plyr)
-head(select(ebs_surface.haul, vessel, cruise, haul, updown, surf_trans_llight))
-head(ebs$light_ratios)
-x <- merge(ebs$light_ratios, select(ebs_surface.haul, vessel, cruise, haul, updown, surf_trans_llight))
+x <- merge(ebs$light_ratios, ebs_surface.haul)
 
 direct_residuals <- tag_residuals_direct(x = x, formula = log10(trans_llight) ~ log10(surf_trans_llight) + interaction(vessel, cruise),
                                   water.col = "trans_llight", 
@@ -200,3 +198,6 @@ ggplot(data = direct_residuals, aes(x = direct_residual)) + geom_density() + fac
 
 The indirect method function in trawllight requires the following arguments:
 
+
+#### Alternatives
+I've implemented the sequential outlier rejection algorithm in TLUtilities, as an alternative to manually assigning a cut-off threshold. The sequential outlier rejection algorithm includes documentation (`?sequentialOR`) and has an accompanying vignette. I also explore threshold assignment based on extreme value theory, but have not included the source code or a vignette. I did not use sequential outlier rejection or extreme value analysis because, in both cases, we would still need to subjectively choose a probablity density function for modelling error.

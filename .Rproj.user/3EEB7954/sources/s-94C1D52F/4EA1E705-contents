@@ -1,0 +1,115 @@
+# Sequential outlier detection (suggested by Stan)
+# Attempt to detect how many outliers to remove based on the rate of change of the fourth derivative of RMSE (snap).
+# Sean K. Rohan
+# skrohan@uw.edu
+# Started: March 7, 2018
+# Last update: March 18, 2018
+
+
+### Indirect method
+
+pdf(file = "./figures/sequential outlier removal_smoothed (indirect) 2018-06-14.pdf", onefile = T)
+iter.depths <- c(1,3,5)
+par(mfrow = c(2,2))
+for (k in 1:length(iter.depths)) {
+  sub_cdepth <- subset(indirect.df, cdepth == iter.depths[k] & quality == 1)
+  flag <- character()
+  sub_cdepth.iter <- nrow(sub_cdepth) - 1000
+  sub_cdepth.mse <- rep(NA, sub_cdepth.iter)
+  sub_cdepth.N <- rep(NA, sub_cdepth.iter)
+  for(i in 1:sub_cdepth.iter) {
+    sub_cdepth.gam <- gam(log10(trans_llight) ~ s(PAR) + s(zenith), family = gaussian(), data = sub_cdepth)
+    sub_cdepth.mse[i] <- mean(sub_cdepth.gam$residuals^2)
+    sub_cdepth.N[i] <- nrow(sub_cdepth)
+    SOR <- which(rank(sub_cdepth.gam$residuals^2) > (length(sub_cdepth.gam$residuals) - 1))
+    flag[i] <- paste(sub_cdepth$vessel[SOR], sub_cdepth$cruise[SOR], sub_cdepth$haul[SOR], sep = "_")
+    # Remove values with the 10 largest residuals
+    sub_cdepth <- sub_cdepth[-SOR,]
+
+  }
+  rmse.fit <- smooth.spline(x = sub_cdepth.N, y = sub_cdepth.mse)
+  rmse.fit2 <- smooth.spline(x = rmse.fit$x[2:length(rmse.fit$x)], y = diff(rmse.fit$y), spar = 0.8)
+  
+  print(plot(rmse.fit$x, rmse.fit$y, type = 'l', ylab = "RMSE", xlab = "Profiles retained (#)", main = paste("Indirect, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit$x[which.min(diff(diff(rmse.fit2$y)/(1+rmse.fit2$y[2:length(rmse.fit2$y)])^2))], lty = 2))
+  
+  print(plot(rmse.fit2$x[2:length(rmse.fit2$x)], diff(rmse.fit2$y), type = 'l', ylab = "D2 RMSE", xlab = "Profiles retained (#)", main = paste("Indirect, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit$x[which.min(diff(diff(rmse.fit2$y)/(1+rmse.fit2$y[2:length(rmse.fit2$y)])^2))], lty = 2))
+  
+  print(plot(rmse.fit2$x[3:length(rmse.fit2$x)], diff(diff(rmse.fit2$y)), type = 'l', ylab = "D3 RMSE", xlab = "Profiles retained (#)", main = paste("Indirect, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit$x[which.min(diff(diff(rmse.fit2$y)/(1+rmse.fit2$y[2:length(rmse.fit2$y)])^2))], lty = 2))
+  
+  print(plot(rmse.fit2$x[3:length(rmse.fit2$x)], diff(diff(rmse.fit2$y)/(((1+rmse.fit2$y[2:length(rmse.fit2$y)])^2))), main = paste("Indirect, ", iter.depths[k], "m"), xlab = "Profiles retained (#)", ylab = "Rate of change of slope angle d/dx", type = 'l'))
+  print(abline(v = rmse.fit$x[which.min(diff(diff(rmse.fit2$y)/(1+rmse.fit2$y[2:length(rmse.fit2$y)])^2))], lty = 2))
+
+}
+dev.off()
+
+
+pdf(file = "./figures/sequential outlier removal_smoothed (direct) 2018-03-09.pdf")
+iter.depths <- c(1,3,5,7)
+par(mfrow = c(2,2))
+for (k in 1:length(iter.depths)) {
+  sub_cdepth <- subset(direct.df, cdepth == iter.depths[k] & quality == 1)
+  sub_cdepth.iter <- nrow(sub_cdepth) - 1000
+  sub_cdepth.mse <- rep(NA, sub_cdepth.iter)
+  sub_cdepth.N <- rep(NA, sub_cdepth.iter)
+  for(i in 1:sub_cdepth.iter) {
+    sub_cdepth.lm <- lm(log10(trans_llight) ~ log10(surf_trans_llight) + interaction(vessel, cruise), data = sub_cdepth)
+    sub_cdepth.mse[i] <- mean(residuals(sub_cdepth.lm)^2)
+    sub_cdepth.N[i] <- nrow(sub_cdepth)
+    
+    # Remove values with the 10 largest residuals
+    sub_cdepth <- sub_cdepth[-which(rank(residuals(sub_cdepth.lm)^2) > (length(residuals(sub_cdepth.lm)) - 1)),]
+  }
+  rmse.fit <- smooth.spline(x = sub_cdepth.N, y = sub_cdepth.mse)
+  rmse.fit2 <- smooth.spline(x = rmse.fit$x[2:length(rmse.fit$x)], y = diff(rmse.fit$y), spar = 0.8)
+  rmse.fit3 <- smooth.spline(x = rmse.fit2$x[2:length(rmse.fit2$x)], y = diff(rmse.fit2$y), spar = 0.8)
+  rmse.fit4 <- smooth.spline(x = rmse.fit3$x[2:length(rmse.fit3$x)], y = diff(rmse.fit3$y), spar = 0.8)
+  rmse.fit5 <- smooth.spline(x = rmse.fit4$x[2:length(rmse.fit4$x)], y = diff(rmse.fit4$y), spar = 0.8)
+  
+  print(plot(rmse.fit$x, rmse.fit$y, type = 'l', ylab = "RMSE", xlab = "Profiles retained (#)", main = paste("Direct, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit5$x[which.min(rmse.fit5$y)], lty = 2))
+  
+  print(plot(rmse.fit2$x[2:length(rmse.fit2$x)], diff(rmse.fit2$y), type = 'l', ylab = "D RMSE", xlab = "Profiles retained (#)", main = paste("Direct, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit5$x[which.min(rmse.fit5$y)], lty = 2))
+  
+  print(plot(rmse.fit3$x[1:length(rmse.fit3$x)], rmse.fit3$y, type = 'l', ylab = "D2 RMSE", xlab = "Profiles retained (#)", main = paste("Direct, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit5$x[which.min(rmse.fit5$y)], lty = 2))
+  
+  print(plot(rmse.fit4$x[1:length(rmse.fit4$x)], rmse.fit4$y, type = 'l', ylab = "D3 RMSE", xlab = "Profiles retained (#)", main = paste("Direct, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit5$x[which.min(rmse.fit5$y)], lty = 2))
+  
+  print(plot(rmse.fit5$x[1:length(rmse.fit5$x)], rmse.fit5$y, type = 'l', ylab = "D4 RMSE", xlab = "Profiles retained (#)", main = paste("Direct, ", iter.depths[k], "m"), xlim = rev(range(sub_cdepth.N))))
+  print(abline(v = rmse.fit5$x[which.min(rmse.fit5$y)], lty = 2))
+  
+}
+dev.off()
+
+plot(diff(sub_cdepth.mse))
+abline(v = 50)
+
+pdf(file = "./figures/sequential outlier removal_histogram (direct) 2018-03-07.pdf", onefile = F)
+iter.depths <- c(1,3,5,7)
+par(mfrow = c(2,2))
+for (k in 1:length(iter.depths)) {
+  sub_cdepth <- subset(direct.df, cdepth == iter.depths[k] & quality == 1)
+  iter <- 
+  sub_cdepth.mse <- rep(NA, sub_cdepth.iter)
+  sub_cdepth.N <- rep(NA, sub_cdepth.iter)
+  for(i in 1:sub_cdepth.iter) {
+    sub_cdepth.lm <- lm(log10(trans_llight) ~ log10(surf_trans_llight) + interaction(vessel, cruise), data = sub_cdepth)
+    sub_cdepth.mse[i] <- mean(residuals(sub_cdepth.lm)^2)
+    sub_cdepth.N[i] <- nrow(sub_cdepth)
+    qplot(x = sub_cdepth.lm$residuals, geom = "histogram")
+    
+
+    
+    # Remove values with the 10 largest residuals
+    sub_cdepth <- sub_cdepth [-which(rank(residuals(sub_cdepth.lm)^2) > (length(residuals(sub_cdepth.lm)) - 500)),]
+    print(hist())
+
+  }
+
+}
+dev.off()
