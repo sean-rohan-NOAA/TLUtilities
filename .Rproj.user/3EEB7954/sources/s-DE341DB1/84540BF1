@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1536965082616.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4240069488",
+    "id" : "84540BF1",
+    "lastKnownWriteTime" : 1537822984,
+    "last_content_update" : 1537822984951,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/R/time_adjustments.R",
+    "project_path" : "R/time_adjustments.R",
+    "properties" : {
+        "cursorPosition" : "20,3",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

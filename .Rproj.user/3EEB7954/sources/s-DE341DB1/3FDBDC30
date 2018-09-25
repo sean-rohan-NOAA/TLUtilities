@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1537561757674.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3093319967",
+    "id" : "3FDBDC30",
+    "lastKnownWriteTime" : 1537823040,
+    "last_content_update" : 1537823040313,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/TLUtilities/test.R",
+    "project_path" : "test.R",
+    "properties" : {
+        "cursorPosition" : "146,0",
+        "scrollLine" : "125"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
