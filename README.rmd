@@ -28,7 +28,7 @@ library(TLUtilities)
 TLUtilities requires the user to pass a character vector indicating where light data are maintained. Each directory should contain a single file names  CastTimes.csv, a single file named corr_Mk9Hauls.csv, and any number (including zero) of files named deck**.csv. The CastTimes.csv files contains survey event times associated with cast start/stop. The corr_Mk9.Hauls.csv file contains data from a TDR-Mk9 archival tag with time-stamps shifted to match 'survey' time in cases where temporal drift occurred.
 
 ```{r import}
-light.dir <- read.csv("D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv", stringsAsFactors = F, header = F)
+light.dir <- read.csv("./imports/directories.csv", stringsAsFactors = F, header = F)
 
 # Select EBS shelf directories
 light.dir <- light.dir[which(grepl("ebs", light.dir[,1])),1]
@@ -199,6 +199,7 @@ ggplot(data = direct_residuals, aes(x = direct_residual)) + geom_density() + fac
 The indirect method function in trawllight requires the following arguments:
 
 
-#### Alternatives
 
-I've explored two additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette demonstrating it's use. I've also explored using extreme value analysis, but it is not implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require subjectively selecting a probablity density function for modelling error.
+#### Alternative methods
+
+I've explored two additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette. I've also explored using extreme value analysis, but it is not currently implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require selection of a probablity density function for modelling error.

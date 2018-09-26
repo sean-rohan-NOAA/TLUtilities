@@ -24,7 +24,7 @@ Import directory structure
 TLUtilities requires the user to pass a character vector indicating where light data are maintained. Each directory should contain a single file names CastTimes.csv, a single file named corr\_Mk9Hauls.csv, and any number (including zero) of files named deck\*\*.csv. The CastTimes.csv files contains survey event times associated with cast start/stop. The corr\_Mk9.Hauls.csv file contains data from a TDR-Mk9 archival tag with time-stamps shifted to match 'survey' time in cases where temporal drift occurred.
 
 ``` r
-light.dir <- read.csv("D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv", stringsAsFactors = F, header = F)
+light.dir <- read.csv("./imports/directories.csv", stringsAsFactors = F, header = F)
 
 # Select EBS shelf directories
 light.dir <- light.dir[which(grepl("ebs", light.dir[,1])),1]
@@ -32,9 +32,9 @@ light.dir <- light.dir[which(grepl("ebs", light.dir[,1])),1]
 light.dir[1:3]
 ```
 
-    ## [1] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_04\\ebs\\v_88"
-    ## [2] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_04\\ebs\\v_89"
-    ## [3] "D:\\Projects\\OneDrive\\Thesis\\Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea\\data\\LightData\\Data\\year_05\\ebs\\v_88"
+    ## [1] "data\\LightData\\Data\\year_04\\ebs\\v_88"
+    ## [2] "data\\LightData\\Data\\year_04\\ebs\\v_89"
+    ## [3] "data\\LightData\\Data\\year_05\\ebs\\v_88"
 
 Read-in and process trawl light data
 ------------------------------------
@@ -138,10 +138,9 @@ All directories can be processed in one function call. The function should autom
 ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = F, time.buffer = 30, agg.fun = geometric.mean)
 ```
 
-    ## Warning in process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], :
-    ## process_all_surface: Deck light measurements not found in D:\Projects
-    ## \OneDrive\Thesis\Chapter 1 - Visual Foraging Condition in the Eastern
-    ## Bering Sea\data\LightData\Data\year_04\ebs\v_88
+    ## Warning in process_all_surface(dir.structure = light.dir[c(1, 5,
+    ## 10:15)], : process_all_surface: Deck light measurements not found in
+    ## data\LightData\Data\year_04\ebs\v_88
 
 Note that `time_adjustments` applied a user-specified correction to 162-201101.
 
@@ -279,18 +278,14 @@ The column we're interested in here is PAR. Some plots help figure out where err
 
 ``` r
 library(ggplot2)
-```
 
-    ## Warning: package 'ggplot2' was built under R version 3.4.4
-
-``` r
 ggplot(data = ebs_surface.haul) + 
   geom_point(aes(x = log10(PAR + 0.001), y = log10(surf_trans_llight), color = paste(vessel, cruise, sep = "/"))) + 
   geom_smooth(aes(x = log10(PAR + 0.001), y = log10(surf_trans_llight))) +
     scale_color_discrete(name = "Vessel/Cruise") 
 ```
 
-    ## `geom_smooth()` using method = 'gam'
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
 ![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
@@ -302,10 +297,9 @@ I modified the file time\_adjustments.R to make corrections to timestamps, then 
 ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = T, time.buffer = 30)
 ```
 
-    ## Warning in process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], :
-    ## process_all_surface: Deck light measurements not found in D:\Projects
-    ## \OneDrive\Thesis\Chapter 1 - Visual Foraging Condition in the Eastern
-    ## Bering Sea\data\LightData\Data\year_04\ebs\v_88
+    ## Warning in process_all_surface(dir.structure = light.dir[c(1, 5,
+    ## 10:15)], : process_all_surface: Deck light measurements not found in
+    ## data\LightData\Data\year_04\ebs\v_88
 
     ## [1] "Applying time corrections"
     ## [1] "Correcting 134-201101"
@@ -319,7 +313,7 @@ ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], ad
 
 After time adjustments, the relationship looks much better:
 
-    ## `geom_smooth()` using method = 'gam'
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
 ![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
