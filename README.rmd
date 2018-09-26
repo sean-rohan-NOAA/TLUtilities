@@ -167,7 +167,7 @@ Functions for the direct method and indirect method are vectorized functions in 
 #### Direct method
 
 Arguments passed to the direct method function are:
-*`x` This is a single data frame which should contain all of the `light_ratios` returned by `process_all`, along with the surface light measurements for each casts, which are returned by `process_all_surface`.
+*`x` A data frame which should contain all of the `light_ratios` returned by `process_all`, along with the surface light measurements for each casts, which are returned by `process_all_surface`.
 *`forumla` This is the forumla that gets passed to `lm`, from which residuals are obtained. The formula for the best-fitting model in the EBS is provided in the code below. I have an R file with all of the code to test for effects of sea state but it is not included in `TLUtilities`.
 *`water.col` Character vector of length one which contains the name of the column with trawl light measurements.
 *`surface.col` Character vector of length one which contains the name of the column with surface light measurements.
@@ -187,7 +187,7 @@ head(direct_residuals)
 
 ```
 
-The `tag_residuals_direct` function returns a data frame which includes raw residuals from the linear model. The `direct_residual` column is the column of interest. Note that it is in log<sub>10</sub>-space.
+The `trawllight::tag_residuals_direct` function returns a data frame which includes raw residuals from the linear model. The `direct_residual` column is the column of interest. Note that it is in log<sub>10</sub>-space.
 
 Kernel density distribution of residuals:
 ```{r}
@@ -196,10 +196,23 @@ ggplot(data = direct_residuals, aes(x = direct_residual)) + geom_density() + fac
 
 #### Indirect method
 
-The indirect method function in trawllight requires the following arguments:
+The `trawllight::tag_residuals_indirect` function requires the following arguments:
+* `x` A data frame which should contain all of the `light_ratios` returned by `process_all`.
+* `formula` Model formula passed to mgcv::gam
+* `utc.offset` The timezone in the data frame relative to UTC. -8 for summer surveys
+* `lat.col`, `lon.col`, `time.col`, `light.col` Names of columns containing necessary data. See function documentation for details.
 
+```{r}
+tag_residuals_indirect(x = x, 
+                       formula = log10(trans_llight) ~ s(PAR, bs = "cr"),
+                       utc.offset = -8,
+                       lat.col = "start_latitude",
+                       lon.col = "start_longitude",
+                       time.col = "start_time",
+                       light.col = "trans_llight")
+```
 
 
 #### Alternative methods
 
-I've explored two additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette. I've also explored using extreme value analysis, but it is not currently implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require selection of a probablity density function for modelling error.
+I explored some additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette. I've also explored using extreme value analysis, but it is not currently implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require selection of a probablity density function for modelling error.
