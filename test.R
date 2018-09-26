@@ -168,6 +168,8 @@ ggplot() + geom_path(data = subset(bbb, month(datetime) >= 7 & day(datetime) > 5
 ### Demonstrating alternative algorithms to smooth raw light data
 require(trawllight)
 require(castr)
+require(devtools)
+install_github("jiho/castr")
 
 test <- test_process_all(dir.structure = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/LightData/Data/year_09/ebs/v_89",
                  cast.dir = "Downcast",
