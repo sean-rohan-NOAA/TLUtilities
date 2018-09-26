@@ -67,7 +67,6 @@ uuu <- merge(subset(ebs$light_ratios, updown == "Downcast"), haul_time_position)
 uuu <- merge(uuu, ebs_surf)
 
 
-
 head(uuu.resid1$direct_residual)
 head(uuu.resid2$resid_df$direct_residual)
 
@@ -165,3 +164,135 @@ ggplot() + geom_path(data = subset(bbb, month(datetime) <= 7 & day(datetime) < 1
 
 ggplot() + geom_path(data = subset(bbb, month(datetime) >= 7 & day(datetime) > 5), aes(x = datetime - 12 * 3600, y = clight)) +
   geom_vline(data = subset(ccc, month(sunrise2) >= 7 & day(sunrise2) > 5), aes(xintercept = sunrise2), col = "red", linetype = 2)
+
+### Demonstrating alternative algorithms to smooth raw light data
+require(trawllight)
+require(castr)
+
+test <- test_process_all(dir.structure = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/LightData/Data/year_09/ebs/v_89",
+                 cast.dir = "Downcast",
+                 silent = T)
+test <- subset(test, vessel == 89 & cruise == 200901)
+
+direct.orient <- readRDS(file = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/output/downcasts_algorithm.rds")
+
+indirect.orient <- readRDS(file = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/output/downcasts_indirect_algorithm.rds")
+
+haulz <- unique(test$haul)
+stepwise <- vector()
+mod_fit <- vector()
+
+pdf(file = "D:/test_downcasts.pdf", width = 10, height = 8)
+for(i in 1:length(haulz)) {
+
+  testA <- subset(test, haul == haulz[i])
+
+  test2 <- testA
+
+  test2$dbin <- findInterval(test2$cdepth, seq(0, max(test2$cdepth), 2), rightmost.closed = T, left.open = F) * 2 - 2/2
+  test3 <- aggregate(trans_llight ~ vessel + cruise + haul + dbin, data = test2, FUN = median)
+
+  if(nrow(test3) > 4) {
+
+    test3.las2 <- loess.as2(x = test3$dbin, y = log10(test3$trans_llight))
+
+    test4 <- filter_stepwise(test2, depth.col = "cdepth", light.col = "trans_llight", agg.fun = median)
+    test4.las2 <- loess.as2(x = test4$cdepth, y = log10(test4$trans_llight))
+
+    plot1 <- ggplot() +
+      geom_point(data = testA, aes(y = cdepth, x = log10(trans_llight)), color = "black", size = rel(3), alpha = 0.5) +
+      geom_point(data = test2, aes(y = dbin, x = log10(trans_llight)), color = "red") +
+      scale_y_reverse(name = "Depth") +
+      scale_x_continuous(name = "log10(light)") +
+      ggtitle(haulz[i])
+
+    plot2 <- ggplot() +
+      geom_point(data = test4, aes(y = cdepth, x = log10(trans_llight)), color = "blue", size = rel(3), alpha = 0.5) +
+      geom_point(data = test3, aes(y = dbin, x = log10(trans_llight)), color = "red") +
+      geom_path(aes(y = seq(min(test3$dbin), max(test3$dbin), 0.2), x = predict(test3.las2, newdata = seq(min(test3$dbin), max(test3$dbin), 0.2))), color = "red") +
+      geom_path(aes(y = seq(min(test4$cdepth), max(test4$cdepth), 0.2), x = predict(test4.las2, newdata = seq(min(test4$cdepth), max(test4$cdepth), 0.2))), color = "blue", linetype = 2) +
+      scale_y_reverse(name = "Depth") +
+      scale_x_continuous(name = "log10(light)") +
+      ggtitle(" ")
+
+    direct.orient.sub <- subset(direct.orient, haul == haulz[i] & (cruise == 200901 & vessel == 89))
+    indirect.orient.sub <- subset(indirect.orient, haul == haulz[i] & (cruise == 200901 & vessel == 89))
+
+    if(nrow(direct.orient.sub) >= 1) {
+      direct.orient.sub <- subset(direct.orient.sub, cdepth == min(direct.orient.sub$cdepth))
+      plot3 <- ggplot() + geom_density(aes(x = direct.orient$direct_residual[direct.orient$cdepth == min(direct.orient.sub$cdepth)])) +
+        geom_vline(aes(xintercept = direct.orient.sub$direct_residual[1]), color = "red", linetype = 2) +
+        ggtitle(paste0("Quality: ", direct.orient.sub$quality, ", Min. Depth: ", min(direct.orient.sub$cdepth))) +
+        scale_x_continuous(name = "Direct residual") +
+        scale_y_continuous(name = "Density")
+
+    } else {
+      plot3 <- ggplot() + geom_text(aes(x = 1, y = 1, label = "Minimum depth > 5 m")) + ggtitle(" ")
+    }
+
+    if(nrow(indirect.orient.sub) >= 1) {
+      indirect.orient.sub <- subset(indirect.orient.sub, cdepth == min(indirect.orient.sub$cdepth))
+
+      plot4 <- ggplot() + geom_density(aes(x = indirect.orient$light_residual[indirect.orient$cdepth == min(indirect.orient.sub$cdepth)])) +
+      geom_vline(aes(xintercept = indirect.orient.sub$light_residual[1]), color = "red", linetype = 2) +
+        scale_x_continuous(name = "Indirect residual") +
+        scale_y_continuous(name = "Density") + ggtitle(" ")
+    } else {
+      plot4 <- ggplot() + geom_text(aes(x = 1, y = 1, label = "Minimum depth > 5 m")) + ggtitle(" ")
+    }
+
+    print(grid.arrange(plot1, plot2, plot3, plot4, nrow = 2))
+
+    stepwise <- c(stepwise, mean(resid(test4.las2)^2))
+    mod_fit <- c(mod_fit, mean(resid(test3.las2)^2))
+  }
+}
+
+dev.off()
+
+
+length(predict(test3.las2, newdata = seq(min(test3$dbin), max(test3$dbin), 0.2)))
+length(seq(min(test3$dbin), max(test3$dbin), 0.2))
+mean(stepwise)
+mean(mod_fit)
+ggplot()+ geom_path(aes(y = -seq(min(test3$dbin), max(test3$dbin), 0.2), x = predict(test3.las2, newdata = seq(min(test3$dbin), max(test3$dbin), 0.2))), color = "blue")
+predict(test3.las2)
+plot(residuals(test3.las2))
+
+ggplot(data = test2, aes(y = cdepth, x = log10(trans_llight))) + geom_point()
+ggplot(data = test2, aes(y = cdepth, x = castr::smooth(log10(trans_llight)))) + geom_point()
+
+ggplot(data = test4, aes(y = dbin, x = log10(llight))) + geom_point() #+ geom_path(aes(y = dbin, x = predict(test3.las2)))
+
+test.atten
+ggplot() + geom_path(data = test.atten$attenuation, aes(x = -k_aicc, y = -depth))
+
+test.atten$attenuation
+
+ggplot(data = test3, aes(y = dbin, x = castr::smooth(log10(trans_llight)))) + geom_point()
+
+
+bruv <- subset(test, haul == 58)
+bruv$cdepth <- findInterval(bruv$cdepth, seq(0, max(bruv$cdepth), 2), rightmost.closed = T, left.open = F) * 2 - 2/2
+bruv <- aggregate(formula = trans_llight ~ vessel + cruise + haul + updown + cdepth,
+                              data = bruv,
+                              FUN = median)
+bruv <- bruv[order(bruv$cdepth),]
+
+broh <- bruv
+
+p2 <- 1
+while(p2 < nrow(bruv) ) {
+  if(nrow(bruv) >= (p2 + 1)) {
+    if((bruv$trans_llight[p2 + 1] > bruv$trans_llight[p2])) {
+      print(p2)
+      bruv <- bruv[-p2,]
+      p2 <- 0 # Index back to start
+    }
+  }
+  p2 <- p2 + 1
+}
+
+
+ggplot() + geom_point(data=bruv, aes(x = log10(trans_llight), y = cdepth), color = "red", alpha = 0.5, size = rel(4)) +
+  geom_point(data = broh, aes(x = log10(trans_llight), y = cdepth), color = "blue")

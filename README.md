@@ -44,7 +44,7 @@ The `process_all` function is a wrapper which runs `vertical_profiles`, `trawlli
 Downcasts and Upcasts should be processed in separate function calls, but multiple years can be processed using one funciton call. Processing should be limited to 4-6 vessel/cruise combinations to avoid issues with R memory limits (which can substantially increase processing time or cause R to crash). Here, processing is demonstrated for one vessel and one year.
 
 ``` r
- ebs <- process_all(dir.structure = light.dir[10],
+ebs <- process_all(dir.structure = light.dir[10:12],
                    cast.dir = "Downcast",
                    time.buffer = 20,
                    silent = T)
@@ -135,7 +135,7 @@ The `time_adjustments` function adjusts timestamps from the surface light meter 
 All directories can be processed in one function call. The function should automatically ignore years where no deck\*\*.csv file is found in a directory. Measurements obtained during upcasts and downcasts can be obtained at the same time. This code only processes eight vessel/cruises (for a reason):
 
 ``` r
-ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = F, time.buffer = 30)
+ebs_surface <- process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], adjust.time = F, time.buffer = 30, agg.fun = geometric.mean)
 ```
 
     ## Warning in process_all_surface(dir.structure = light.dir[c(1, 5, 10:15)], :
@@ -326,6 +326,97 @@ After time adjustments, the relationship looks much better:
 Detecting tag obstruction
 -------------------------
 
-Now that I have extracted measurements from the trawl-mounted archival tag and deck-mounted archival tag, it's time to test for measurement errors caused by obstruction of the photoelectric cell on the archival tag.
+Now that I have extracted measurements from the trawl-mounted archival tag and deck-mounted archival tag, it's time to test for measurement errors caused by obstruction of the photoelectric cell on the archival tag. Two methods are described below. I consider the direct method to be preferable to the indirect method because it utilizes light measurements wheras the indirect method is based on a solar irradiance model.
 
-### Direct method
+\*<b>Direct method:</b> Fit a linear model between surface light measurements and trawl light measurements near the sea surface. Use the distribution of model residual to assign a threshold below which measurements should be considered to be obstructed.
+
+\*<b>Indirect method:</b> Fit a generalized additive model between model estimates of photosynthetically available radiation (400-700 nm) at the sea surface and trawl light measurements near the sea surface. This method uses a solar irradiance model (Frouin et al. 1989), implemented in the `fishmethods` package, to estimate solar irradiance at the sea surface based on cast time and position. The model assumes clear sky (no clouds).
+
+Functions for the direct method and indirect method are vectorized functions in `trawllight`. The `TLUtilities` package includes wrapper functions to loop over the `trawllight` functions based on our data structure.
+
+#### Direct method
+
+Arguments passed to the direct method function are: *`x` This is a single data frame which should contain all of the `light_ratios` returned by `process_all`, along with the surface light measurements for each casts, which are returned by `process_all_surface`. *`forumla` This is the forumla that gets passed to `lm`, from which residuals are obtained. The formula for the best-fitting model in the EBS is provided in the code below. I have an R file with all of the code to test for effects of sea state but it is not included in `TLUtilities`. *`water.col` Character vector of length one which contains the name of the column with trawl light measurements. *`surface.col` Character vector of length one which contains the name of the column with surface light measurements. *`depth.col` Character vector of length one which contains the name of the column with depth measurements. *`depth.col` Depth bins which should be used for measurement error detection. A different model is fit to measurements from each depth bin.
+
+``` r
+library(plyr)
+```
+
+    ## 
+    ## Attaching package: 'plyr'
+
+    ## The following object is masked from 'package:lubridate':
+    ## 
+    ##     here
+
+``` r
+x <- merge(ebs$light_ratios, ebs_surface.haul)
+
+direct_residuals <- tag_residuals_direct(x = x, formula = log10(trans_llight) ~ log10(surf_trans_llight) + interaction(vessel, cruise),
+                                  water.col = "trans_llight", 
+                                  surface.col = "surf_trans_llight", 
+                                  depth.col = "cdepth", 
+                                  depth.bins = c(1, 3, 5))
+head(direct_residuals)
+```
+
+    ##   vessel cruise haul   updown cdepth trans_llight quality light_ratio
+    ## 1     88 200901    1 Downcast      1  189.2595316       1           1
+    ## 2     88 200901   10 Downcast      1   10.3265604       1           1
+    ## 3     88 200901  100 Downcast      1  418.3503570       1           1
+    ## 4     88 200901  101 Downcast      1  709.8965506       1           1
+    ## 5     88 200901  103 Downcast      1   97.7212713       1           1
+    ## 6     88 200901  104 Downcast      1  366.5442519       1           1
+    ##   k_linear    k_column surf_trans_llight          start_time stationid
+    ## 1      NaN 0.130547500       544.9637377 2009-06-01 13:46:32      C-08
+    ## 2      NaN 0.209964706        29.7348351 2009-06-04 06:28:55      F-14
+    ## 3      NaN 0.177961538       846.7334301 2009-06-23 14:34:34      P-20
+    ## 4      NaN 0.167792308      1173.1869998 2009-06-23 17:03:05      O-20
+    ## 5      NaN 0.145420000       165.8227184 2009-06-24 09:37:00      M-20
+    ## 6      NaN 0.140729032       544.9637377 2009-06-24 12:16:48      L-20
+    ##   start_latitude start_longitude end_latitude end_longitude bottom_depth
+    ## 1       55.78928       -163.1429     55.79931    -163.12480           84
+    ## 2       56.67446       -159.7401     56.66721    -159.78270           38
+    ## 3       60.01262       -169.9774     59.98808    -169.97710           55
+    ## 4       59.69501       -169.9406     59.67094    -169.93530           57
+    ## 5       59.02197       -169.8373     58.99752    -169.83540           64
+    ## 6       58.68193       -169.7769     58.65770    -169.77831           67
+    ##   performance haul_type stratum       noon    sunrise     sunset
+    ## 1           0         0      NA 14.8414509 6.25225685 23.4306449
+    ## 2           0         3      10 14.6220337 5.87687657 23.3671909
+    ## 3           0         3      41 15.3707811 5.94039419 24.8011680
+    ## 4           0         3      41 15.3722555 6.00677671 24.7377343
+    ## 5           0         3      41 15.3642702 6.11612909 24.6124112
+    ## 6           0         3      41 15.3606355 6.16985636 24.5514147
+    ##       azimuth     zenith      eqtime     declin   daylight          PAR
+    ## 1 153.8439364 35.6879698  2.08454822 22.1646062 17.1783880 381.80202213
+    ## 2  51.4078930 87.2377853  1.63837666 22.4927093 17.4903143   3.00190382
+    ## 3 161.6655261 37.5606088 -2.33726585 23.4142634 18.8607738 371.46061631
+    ## 4 217.0571785 40.3671258 -2.57293140 23.3895535 18.7309576 355.13298922
+    ## 5  80.5492908 68.1822626 -2.50700913 23.3973330 18.4962821 150.06056779
+    ## 6 116.6925826 48.0764184 -2.53053193 23.3946351 18.3815583 305.49685751
+    ##   direct_residual
+    ## 1   -0.0712547985
+    ## 2   -0.1920663461
+    ## 3    0.1001532628
+    ## 4    0.2017331867
+    ## 5    0.1089772177
+    ## 6    0.2158138540
+
+The `tag_residuals_direct` function returns a data frame which includes raw residuals from the linear model. The `direct_residual` column is the column of interest. Note that it is in log<sub>10</sub>-space.
+
+Kernel density distribution of residuals:
+
+``` r
+ggplot(data = direct_residuals, aes(x = direct_residual)) + geom_density() + facet_wrap(~cdepth, nrow = 1)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+#### Indirect method
+
+The indirect method function in trawllight requires the following arguments:
+
+#### Alternatives
+
+I've explored two additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette demonstrating it's use. I've also explored using extreme value analysis, but it is not implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require subjectively selecting a probablity density function for modelling error.

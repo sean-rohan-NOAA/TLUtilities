@@ -200,4 +200,5 @@ The indirect method function in trawllight requires the following arguments:
 
 
 #### Alternatives
-I've implemented the sequential outlier rejection algorithm in TLUtilities, as an alternative to manually assigning a cut-off threshold. The sequential outlier rejection algorithm includes documentation (`?sequentialOR`) and has an accompanying vignette. I also explore threshold assignment based on extreme value theory, but have not included the source code or a vignette. I did not use sequential outlier rejection or extreme value analysis because, in both cases, we would still need to subjectively choose a probablity density function for modelling error.
+
+I've explored two additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The function includes documentation (`?sequentialOR`) and a vignette demonstrating it's use. I've also explored using extreme value analysis, but it is not implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require subjectively selecting a probablity density function for modelling error.

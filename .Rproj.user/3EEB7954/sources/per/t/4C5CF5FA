@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1537911212456.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2301254724",
+    "id" : "4C5CF5FA",
+    "lastKnownWriteTime" : 1536954446,
+    "last_content_update" : 1536954446,
+    "path" : "D:/Projects/OneDrive/afsc/Light data processing/trawllight/R/calculate_attenuation.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "18,25",
+        "scrollLine" : "13"
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
