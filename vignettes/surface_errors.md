@@ -7,7 +7,7 @@ output: github_document
 
 ## Problem
 
-There was evidence that measurment errors occurred, based on examination of the relationship between surface-incident clear-sky PAR estimated by global irradiance model and light measurements from the deck-mounted archival tag. Here, I fix the problem for one vessel/cruise. This is a somewhat convoluted example because the time offset error was already recorded in Stan's notes for this vessel/cruise. However, it was a slightly more "involved" fix than for other years.
+Some problems were detected after examination of the relationship between surface-incident clear-sky PAR estimated by global irradiance model and light measurements from the deck-mounted archival tag. Here, I fix the problem for one vessel/cruise. This is a somewhat convoluted example because the time offset error was already recorded in Stan's notes for this vessel/cruise. However, it was a slightly more "involved" fix than for other years.
 
 Two possible explanations for discrepancies are:
 * Measurement error due to obstruction of the photoelectric cell (e.g. gull-induced biofouling)
@@ -19,10 +19,6 @@ The scatterplot seemed to suggest the latter explanation since the full range of
 If the photoelectric cell was obstructed, diel peaks in light measurements would be expected to drop precipitously. Let's plot the raw tag data:
 
 
-```r
-head(bbb)
-```
-
 ```
 ##         date     time cdepth  temp clight
 ## 1 06/02/2006 08:20:00   -2.5 11.45    157
@@ -33,47 +29,13 @@ head(bbb)
 ## 6 06/02/2006 08:20:50   -2.5 11.35    170
 ```
 
-```r
-bbb$datetime <- paste(bbb$date, bbb$time)
-bbb$datetime <- as.POSIXct(bbb$datetime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage")
-ggplot(data = bbb, aes(x = datetime, y = clight)) + geom_path()
-```
-
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
+![plot of chunk unnamed-chunk-1](./vignettes/figures/unnamed-chunk-1-1.png)
 
 Looks pretty normal-- no evidence that the tag was obstructed.
 
 #### Wrong time?
 
 Next, I checked to see if the timestamps were off, by plotting the sunrise time for the first haul of the day.
-
-```r
-require(fishmethods)
-require(lubridate)
-
-
-# Vessel/cruise of interest
-ccc <- subset(haul_time_position, vessel == 134 & cruise == 200601)
-
-# Only the first haul of the day
-ccc <- subset(ccc, haul %in% aggregate(haul ~ yday(ccc$start_time), data = ccc, FUN = min)[,2])
-
-# Calculate sunrise time
-ccc <- cbind(ccc,
-       fishmethods::astrocalc4r(day = day(ccc$start_time),
-                  month = month(ccc$start_time),
-                  year = year(ccc$start_time),
-                  hour = hour(ccc$start_time) + minute(ccc$start_time)/60,
-                  timezone = rep(-8, nrow(ccc)),
-                  lat = ccc$start_latitude,
-                  lon = ccc$start_longitude,
-                  seaorland = "maritime"))
-
-# Convert sunrise time to POSIXct
-ccc$sunrise2 <- as.POSIXct(paste(date(ccc$start_time), " ", floor(ccc$sunrise), ":", floor(ccc$sunrise%%1 * 60), ":", floor((ccc$sunrise%%1 * 60)%%1*60), sep = ""), tz = "America/Anchorage")
-
-head(ccc)
-```
 
 ```
 ##     vessel cruise haul          start_time stationid start_latitude
@@ -113,40 +75,16 @@ head(ccc)
 ## 659 2006-06-06 05:52:16
 ```
 
-```r
-# Plot sunrise times over light meaurements.
-ggplot() + geom_path(data = bbb, aes(x = datetime, y = clight)) +
-  geom_vline(data = ccc, aes(xintercept = sunrise2), col = "red", linetype = 2)
-```
-
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-2](./vignettes/figures/unnamed-chunk-2-1.png)
 
 Sunrises times from the first half of the survey look consistent with the time stamps. Sunrise times from the second half look like they occurred in the middle of the day:
-
-```r
-ggplot() + geom_path(data = subset(bbb, month(datetime) == 7 & day(datetime) < 15), aes(x = datetime, y = clight)) +
-  geom_vline(data = subset(ccc, month(sunrise2) == 7 & day(sunrise2) < 15), aes(xintercept = sunrise2), col = "red", linetype = 2)
-```
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+![plot of chunk unnamed-chunk-3](./vignettes/figures/unnamed-chunk-3-1.png)
 
 After some trial and error, it looks like the archival tag times were off by 12 hours. Here, the archival tag timestamps are shifted by 12 hours (12 * 3600):
-
-```r
-ggplot() + geom_path(data = subset(bbb, month(datetime) >= 7 & day(datetime) > 5), aes(x = datetime - 12 * 3600, y = clight)) +
-  geom_vline(data = subset(ccc, month(sunrise2) >= 7 & day(sunrise2) > 5), aes(xintercept = sunrise2), col = "red", linetype = 2)
-```
-
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4](./vignettes/figures/unnamed-chunk-4-1.png)
 
 
 ## Adding the correction
 
 Now that I know how to fix the problem, I add a conditional correction to time_adjustment.R:
 
-```text
-  if(cast.data$vessel[1] == 134 & cast.data$cruise[1] == 200601) {
-    print("Correcting 134-201101")
-    light.data$ctime[lubridate::month(light.data$ctime) >=7 & lubridate::day(light.data$ctime) > 8] <- light.data$ctime[lubridate::month(light.data$ctime) >=7 & lubridate::day(light.data$ctime) > 8] - 3600*12 # Time off by 1 hour
-  }
-```

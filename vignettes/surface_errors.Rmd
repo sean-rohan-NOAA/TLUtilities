@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.path = "./vignettes/figures/")
 require(ggplot2)
 bbb <- read.csv(file = "C:/Users/seanr/OneDrive/afsc/Light data processing/testing_space/data/LightData/Data/year_06/ebs/v_134/deck1_0490940.csv", header = F)
 haul_time_position <- readRDS("C:/Users/seanr/OneDrive/afsc/Light data processing/testing_space/data/haul_time_position.rds")
@@ -13,7 +13,7 @@ names(bbb) <- c("date", "time", "cdepth", "temp", "clight")
 
 ## Problem
 
-There was evidence that measurment errors occurred, based on examination of the relationship between surface-incident clear-sky PAR estimated by global irradiance model and light measurements from the deck-mounted archival tag. Here, I fix the problem for one vessel/cruise. This is a somewhat convoluted example because the time offset error was already recorded in Stan's notes for this vessel/cruise. However, it was a slightly more "involved" fix than for other years.
+Some problems were detected after examination of the relationship between surface-incident clear-sky PAR estimated by global irradiance model and light measurements from the deck-mounted archival tag. Here, I fix the problem for one vessel/cruise. This is a somewhat convoluted example because the time offset error was already recorded in Stan's notes for this vessel/cruise. However, it was a slightly more "involved" fix than for other years.
 
 Two possible explanations for discrepancies are:
 * Measurement error due to obstruction of the photoelectric cell (e.g. gull-induced biofouling)
