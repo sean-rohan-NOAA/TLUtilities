@@ -177,8 +177,9 @@ test <- test_process_all(dir.structure = "D:/Projects/OneDrive/Thesis/Chapter 1 
 test <- subset(test, vessel == 89 & cruise == 200901)
 
 direct.orient <- readRDS(file = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/output/downcasts_algorithm.rds")
-
 indirect.orient <- readRDS(file = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/output/downcasts_indirect_algorithm.rds")
+loess.resid <- readRDS(file = "D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/output/loess_residuals.rds")
+
 
 haulz <- unique(test$haul)
 stepwise <- vector()
