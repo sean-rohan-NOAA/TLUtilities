@@ -18,10 +18,7 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
   light.data$vessel <- rep(cast.data$vessel[1], nrow(light.data))
   light.data$cruise <- rep(cast.data$cruise[1], nrow(light.data))
 
-  # Create empty rows for cast direction (updown) and haul number
-  haul_count <- nrow(cast.data)
-
-  for(i in 1:haul_count) {
+  for(i in 1:nrow(cast.data)) {
     # Assign upcast or downcast to tag time
     light.data$updown[light.data$ctime > (cast.data$downcast_start[i] - time.buffer) &
                         light.data$ctime < (cast.data$downcast_start[i] + time.buffer)] <- "Downcast"
@@ -34,8 +31,9 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
   # Remove measurements outside of time window
   light.data <- subset(light.data, !is.na(updown))
 
-  # Geometric mean and geometric standard deviation surface light during casts
-  light.data <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = agg.fun)
+  llight <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = agg.fun)
+  ctime <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light.data, FUN = mean)
+  light.data <- merge(llight, ctime)
 
   return(light.data)
 }

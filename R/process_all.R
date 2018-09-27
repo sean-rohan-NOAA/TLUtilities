@@ -67,6 +67,12 @@ process_all <- function(dir.structure,
 
         lr.out <- light_proportion(filtered)
 
+        if(cast.dir == "Upcast") {
+          lr.out$surface_time <- casttimes$upcast_end[j]
+        } else if(cast.dir == "Downcast") {
+          lr.out$surface_time <- casttimes$downcast_start[j]
+        }
+
         if(class(loess_eval) == "numeric") {
           loess_eval <- atten.out$fit_atten
           atten_values <- atten.out$attenuation

@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 .rmd
+
+README.rmd
+
+surface_errors.Rmd

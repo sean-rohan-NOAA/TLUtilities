@@ -15,7 +15,7 @@ sapply(paste("./R/", dir("./R/"), sep = ""), source)
 #require(dplyr)
 
 # Import csv file containing filepaths for light data DIRECTORIES. Each target directories should contain corr_Mk9Hauls.csv, deck1**.csv, and CastTimes.csv for a vessel/cruise combination. This list needs to be created by the user.
-light.dir <- read.csv("D:/Projects/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv", stringsAsFactors = F, header = F)
+light.dir <- read.csv("../testing_space/imports/directories.csv", header = F, stringsAsFactors = F)
 
 
 # Only use EBS shelf directories.
@@ -60,7 +60,7 @@ head(ebs$resid_fit)
 
 ebs_surf <- process_all_surface(dir.structure = light.dir[10:12], time.buffer = 30, adjust.time = T)
 
-haul_time_position <- readRDS("./data/haul_time_position.rds")
+haul_time_position <- readRDS("../testing_space/data/haul_time_position.rds")
 str(haul_time_position)
 head(ebs_surf)
 uuu <- merge(subset(ebs$light_ratios, updown == "Downcast"), haul_time_position)
@@ -123,16 +123,9 @@ ggplot() + geom_path(data = subset(bbb, month(datetime) >= 7 & day(datetime) > 5
 
 
 
-#
+# Correcting offset issue for 162-201101
+# dir(paste0("../testing_space/", light.dir[15]))
 
-dir(light.dir[15])
-
-bbb <- read.csv(file = paste(light.dir[15], "\\deck1_1190097.csv", sep = ""), header = F)
-head(bbb)
-names(bbb) <- c("date", "time", "cdepth", "temp", "clight")
-bbb$datetime <- paste(bbb$date, bbb$time)
-bbb$datetime <- as.POSIXct(bbb$datetime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage")
-ggplot(data = bbb, aes(x = datetime, y = clight)) + geom_path()
 
 # No evidence of obstruction, so let's check if the time stamps are off.
 
@@ -299,3 +292,73 @@ while(p2 < nrow(bruv) ) {
 
 ggplot() + geom_point(data=bruv, aes(x = log10(trans_llight), y = cdepth), color = "red", alpha = 0.5, size = rel(4)) +
   geom_point(data = broh, aes(x = log10(trans_llight), y = cdepth), color = "blue")
+
+
+### Vessel 94, Cruise 201401
+
+setwd("../testing_space/")
+
+dir(light.dir[24])
+
+# AKK
+bbb <- read.csv(file = paste0(light.dir[21], "\\deck1_1190403.csv"), header = F)
+ccc <- subset(haul_time_position, vessel == 162 & cruise == 201401)
+
+bbb <- read.csv(file = paste0(light.dir[23], "\\deck1_1190403.csv"), header = F)
+ccc <- subset(haul_time_position, vessel == 162 & cruise == 201501)
+
+# VEST
+bbb <- read.csv(file = paste0(light.dir[22], "\\deck1_0990424.csv"), header = F)
+ccc <- subset(haul_time_position, vessel == 94 & cruise == 201401)
+
+bbb <- read.csv(file = paste0(light.dir[24], "\\deck1_0990424.csv"), header = F)
+ccc <- subset(haul_time_position, vessel == 94 & cruise == 201501)
+
+names(bbb) <- c("date", "time", "cdepth", "temp", "clight")
+bbb$datetime <- paste(bbb$date, bbb$time)
+bbb$datetime <- as.POSIXct(bbb$datetime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage")
+ggplot(data = bbb, aes(x = datetime, y = clight)) + geom_path()
+
+# No evidence of obstruction, so let's check if the time stamps are off.
+
+# Using astrocalc4r, I find the sunrise time for the latitude and longitude for the first haul of every day.
+
+#ccc <- subset(haul_time_position, vessel == 162 & cruise == 201401)
+ccc <- subset(ccc, haul %in% aggregate(haul ~ yday(ccc$start_time), data = ccc, FUN = min)[,2])
+ccc <- cbind(ccc,
+             astrocalc4r(day = day(ccc$start_time),
+                         month = month(ccc$start_time),
+                         year = year(ccc$start_time),
+                         hour = hour(ccc$start_time) + minute(ccc$start_time)/60,
+                         timezone = rep(-8, nrow(ccc)),
+                         lat = ccc$start_latitude,
+                         lon = ccc$start_longitude,
+                         seaorland = "maritime"))
+
+ccc$sunrise2 <- as.POSIXct(paste(date(ccc$start_time), " ", floor(ccc$sunrise), ":", floor(ccc$sunrise%%1 * 60), ":", floor((ccc$sunrise%%1 * 60)%%1*60), sep = ""), tz = "America/Anchorage")
+ggplot() + geom_path(data = subset(bbb, month(datetime) < 7), aes(x = datetime - 3600, y = clight)) +
+  geom_vline(data = subset(ccc, month(sunrise2) < 7), aes(xintercept = sunrise2), col = "red", linetype = 2)
+
+ggplot() + geom_path(data = bbb, aes(x = datetime, y = clight)) +
+  geom_vline(data = ccc, aes(xintercept = sunrise2), col = "red", linetype = 2)
+
+timeMismatch <- function() {
+  bb1 <- read.csv(file = paste0(light.dir[23], "\\deck1_1190403.csv"), header = F)
+  names(bb1) <- c("date", "time", "cdepth", "temp", "clight")
+  bb1$vessel <- "v162"
+
+  bb2 <- read.csv(file = paste0(light.dir[24], "\\deck1_0990424.csv"), header = F)
+  names(bb2) <- c("date", "time", "cdepth", "temp", "clight")
+  bb2$vessel <- "v94"
+
+  bb <- rbind(bb1, bb2)
+
+  bb$datetime <- paste(bb$date, bb$time)
+  bb$datetime <- as.POSIXct(bb$datetime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage")
+  bb$datetime[bb$vessel == "v94"] <- bb$datetime[bb$vessel == "v94"] - 3600
+
+  print(ggplot() + geom_path(data = subset(bb, month(datetime) >= 7 & day(datetime) > 15), aes(x = datetime, y = clight, color = vessel)))
+
+}
+
+timeMismatch()

@@ -18,7 +18,6 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
 
     # Import CastTImes
     cast.times <- read.csv(paste(dir.structure[t], "/CastTimes.csv", sep = ""))
-    #print("a")
 
     # Find names of deck files
     deck.files <- list.files(path = dir.structure[t], pattern = "^deck.*\\.csv", full.names = T)
@@ -31,7 +30,6 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
     #Import first deck file
     deck.data <- read.csv(file = deck.files[1], header = F)
     deck.data$ctime <- paste(deck.data[,1], deck.data[,2], sep = " ")
-    #print("b")
 
     # Import additional deck files if multiple exist in one directory
     if(length(deck.files) > 1) {
@@ -39,11 +37,9 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
         deck.data <- rbind(deck.data, read.csv(file = deck.files[b], header = F))
       }
     }
-    #print(deck.data[1,])
 
     # Convert times into POSIXct
     deck.data$ctime <- as.POSIXct(strptime(deck.data$ctime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage"))
-    #print("d")
 
     # Convert cast times to POSIXct format, add 30 second offset to each cast time to avoid truncating cast data
     cast.times$downcast_start <- as.POSIXct(strptime(cast.times$downcast_start,
@@ -54,19 +50,14 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
                                                    format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
     cast.times$upcast_end <- as.POSIXct(strptime(cast.times$upcast_end,
                                                  format = "%Y-%m-%d %H:%M:%S", tz = "America/Anchorage"))
-    #print("e")
 
-    #print(1)
     if(adjust.time) {
     # Correct cases where there is a mismatch between survey time and tag time
-    print("Applying time corrections")
     deck.data <- time_adjustments(light.data = deck.data,
                                    cast.data = cast.times)
     }
-    #print(2)
 
     if(nrow(deck.data) > 0) {
-      #print(3)
 
       # Find surface measurements
       surface_profiles <- surface_light(light.data = deck.data,
@@ -74,13 +65,13 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
                                         ...)
 
       if(is.null(surface.output)) {
-        #print(4)
+
         surface.output <- surface_profiles
-        #print(5)
+
       } else {
-        #print(6)
+
         surface.output <- rbind(surface.output, surface_profiles)
-        #print(7)
+
       }
     }
 
