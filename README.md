@@ -53,7 +53,15 @@ ebs <- process_all(dir.structure = light.dir[10:12],
 Vertical profiles
 -----------------
 
-A list containing four data frames gets returned by `process_all`: \* `loess_eval` contains information about loess model fits between depth and log(light), with one record for each model that was fitted. \* `resid_fit` contains depth-specific residuals for each fitted loess model. \* `atten_values` contains instantaneous attenuation, by user-specified depth intervals, for each cast. \* `light_ratios` contains converted light measurements and proportion of light relative to the shallowest depth bin, for each depth bin and cast. For cases when the shallowest depth bin is equal to the reference depth: light\_ratios$light\_ratio = exp(-\[Optical Depth\]
+A list containing four data frames gets returned by `process_all`:
+
+-   `loess_eval` contains information about loess model fits between depth and log(light), with one record for each model that was fitted.
+
+-   `resid_fit` contains depth-specific residuals for each fitted loess model.
+
+-   `atten_values` contains instantaneous attenuation, by user-specified depth intervals, for each cast.
+
+-   `light_ratios` contains converted light measurements and proportion of light relative to the shallowest depth bin, for each depth bin and cast. For cases when the shallowest depth bin is equal to the reference depth: light\_ratios$light\_ratio = exp(-\[Optical Depth\]
 
 ``` r
 names(ebs)
@@ -415,7 +423,7 @@ ggplot(data = direct_residuals$resid_df, aes(x = direct_residual)) + geom_densit
 
 #### Indirect method
 
-The `trawllight::tag_residuals_indirect` function requires the following arguments: \* `x` A data frame which should contain all of the `light_ratios` returned by `process_all`. \* `formula` Model formula passed to mgcv::gam \* `utc.offset` The timezone in the data frame relative to UTC. -8 for summer surveys \* `lat.col`, `lon.col`, `time.col`, `light.col` Names of columns containing necessary data. See function documentation for details.
+The `trawllight::tag_residuals_indirect` function requires the following arguments: *`x` A data frame which should contain all of the `light_ratios` returned by `process_all`. *`formula` Model formula passed to mgcv::gam *`utc.offset` The timezone in the data frame relative to UTC. -8 for summer surveys *`lat.col`, `lon.col`, `time.col`, `light.col` Names of columns containing necessary data. See function documentation for details.
 
 ``` r
 indirect <- tag_residuals_indirect(x = x, 
