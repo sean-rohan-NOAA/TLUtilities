@@ -33,6 +33,7 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
 
   llight <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = agg.fun)
   ctime <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light.data, FUN = mean)
+  ctime$ctime <- lubridate::with_tz(ctime$ctime, "America/Anchorage")
   light.data <- merge(llight, ctime)
 
   return(light.data)

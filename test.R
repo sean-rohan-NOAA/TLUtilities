@@ -301,6 +301,7 @@ setwd("../testing_space/")
 dir(light.dir[24])
 
 # AKK
+require(lubridate)
 bbb <- read.csv(file = paste0(light.dir[21], "\\deck1_1190403.csv"), header = F)
 ccc <- subset(haul_time_position, vessel == 162 & cruise == 201401)
 
@@ -355,10 +356,26 @@ timeMismatch <- function() {
 
   bb$datetime <- paste(bb$date, bb$time)
   bb$datetime <- as.POSIXct(bb$datetime, format = "%m/%d/%Y %H:%M:%S", tz = "America/Anchorage")
-  bb$datetime[bb$vessel == "v94"] <- bb$datetime[bb$vessel == "v94"] - 3600
+  bb$datetime[bb$vessel == "v94"] <- with_tz(force_tz(bb$datetime[bb$vessel == "v94"], "America/Los_Angeles"), "America/Anchorage")
 
-  print(ggplot() + geom_path(data = subset(bb, month(datetime) >= 7 & day(datetime) > 15), aes(x = datetime, y = clight, color = vessel)))
+  print(ggplot() + geom_path(data = subset(bb, month(datetime) >= 7 & day(datetime) > 25), aes(x = datetime, y = clight, color = vessel)))
 
 }
 
 timeMismatch()
+
+
+### Messing with timestamps
+test <- bbb$datetime[1]
+test
+test2 <- force_tz(test, "America/Los_Angeles")
+test2
+with_tz(test2, "America/Anchorage")
+
+
+("America/Anchorage")
+
+?with_tz
+
+test
+tz(test)
