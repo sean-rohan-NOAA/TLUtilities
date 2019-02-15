@@ -10,7 +10,7 @@ process_all <- function(dir.structure,
                         binsize = 2,
                         bin.gap = 6,
                         kz.binsize = 0.5,
-                        silent = TRUE, ...) {
+                        silent = TRUE) {
 
   # Step 1. Input directory and CastTimes and corr_MK9_hauls files
 

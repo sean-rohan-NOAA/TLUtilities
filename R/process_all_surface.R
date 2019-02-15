@@ -17,6 +17,7 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
     }
 
     # Import CastTImes
+    print(paste("Processing", dir.structure[t]))
     cast.times <- read.csv(paste(dir.structure[t], "/CastTimes.csv", sep = ""))
 
     # Find names of deck files
@@ -56,21 +57,20 @@ process_all_surface <- function(dir.structure, adjust.time = T, ...) {
     deck.data <- time_adjustments(light.data = deck.data,
                                    cast.data = cast.times)
     }
-
     if(nrow(deck.data) > 0) {
 
       # Find surface measurements
       surface_profiles <- surface_light(light.data = deck.data,
                                         cast.data = cast.times,
                                         ...)
-
       if(is.null(surface.output)) {
 
         surface.output <- surface_profiles
 
       } else {
-
-        surface.output <- rbind(surface.output, surface_profiles)
+        if(!is.null(surface_profiles)) {
+          surface.output <- rbind(surface.output, surface_profiles)
+        }
 
       }
     }

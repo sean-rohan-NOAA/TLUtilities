@@ -12,6 +12,7 @@
 surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = trawllight::geometric.mean, ...) {
 
   # Select and rename light and time columns
+  if(ncol(light.data) >= 6) {
   light.data <- light.data[,5:6]
   colnames(light.data) <- c("surf_llight", "ctime")
   light.data$surf_trans_llight <- convert_light(light.data$surf_llight)
@@ -30,11 +31,15 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
 
   # Remove measurements outside of time window
   light.data <- subset(light.data, !is.na(updown))
-
+  print(head(light.data))
   llight <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = agg.fun)
   ctime <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light.data, FUN = mean)
   ctime$ctime <- lubridate::with_tz(ctime$ctime, "America/Anchorage")
   light.data <- merge(llight, ctime)
 
   return(light.data)
+  } else {
+    warning(paste("surface_light: Deck light measurements not found for" , cast.data$vessel[1], "-", cast.data$cruise[1]))
+    return(NULL)
+  }
 }

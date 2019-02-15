@@ -1,6 +1,6 @@
-#' Wrapper for filter_stepwise and calculate_attenuation
+#' Development version of process_all
 #'
-#' This function is designed to work with the RACE data structure to subset. all of the Mk9 data obtained during upscasts and downcasts and runs functions convert_light, filter_stepwise, and calculate_attenuation on the data. The directory structure needs to be input for the function to work.
+#' This function is the development version of process_all, which can be used to test different filtering algorithms.
 #'
 
 test_process_all <- function(dir.structure,

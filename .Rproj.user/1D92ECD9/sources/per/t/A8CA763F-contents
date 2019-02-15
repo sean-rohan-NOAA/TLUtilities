@@ -1,5 +1,0 @@
-require(trawllight)
-
-dirlist <- read.csv(file = "C:/Users/seanr/OneDrive/Thesis/Chapter 1 - Visual Foraging Condition in the Eastern Bering Sea/data/fileinv_lightdata_directory.csv")
-
-dirlist

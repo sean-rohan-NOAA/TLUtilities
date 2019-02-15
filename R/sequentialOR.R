@@ -16,7 +16,7 @@
 #' @references Kotwicki, S., M. H. Martin, and E. A. Laman. 2011. Improving area swept estimates from bottom trawl surveys. Fisheries Research 110(1):198–206. Elsevier B.V.
 
 
-sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, threshold.stop = NULL, tail = "both", plot = T,  ...) {
+sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, threshold.stop = NULL, tail = "both", plot = T, progress.plot = F,  ...) {
 
   tail <- tolower(tail)
   method <- tolower(method)
@@ -34,6 +34,8 @@ sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, thr
   data$SOR_RANK <- NA
   RMSE <- rep(NA, iter)
   NN <- rep(NA, iter)
+  PARSLOPE <- rep(NA, iter)
+  data$index <- 1:nrow(data)
 
   # Rejection counter
   rejection <- 1
@@ -41,7 +43,7 @@ sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, thr
   for(i in 1:iter) {
 
     # Subset data that hasn't been rejected
-    data.sub <- subset(data, is.na(SOR_RANK))
+    data.sub <- subset(data, is.na(SOR_RANK), drop = T)
 
     # Select model
     if(method == 'lm') mod <- lm(formula, data = data.sub, ...);
@@ -51,14 +53,27 @@ sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, thr
     # Append residuals to subsetted data
     data.sub$resid <- resid(mod)
 
+    if(progress.plot) {
+      png(file = paste0("./figures/sor_example/", i, ".png"), res = 120, width = 8, height = 4, units = "in")
+      p1 <- ggplot() + geom_point(aes(x = log10(surf_trans_llight), y = log10(trans_llight)), data = data.sub, alpha = 0.7) +
+        scale_x_continuous(limits = c(-1.1, 4)) +
+        scale_y_continuous(limits = c(-1.5, 3.5) + theme_bw())
+      p2 <- ggplot() + geom_density(aes(x = data.sub$resid)) + scale_x_continuous(limits = c(-2.2,2.2), expand = c(0,0)) +
+        scale_y_continuous(limits = c(0,2), expand = c(0,0))
+      print(grid.arrange(p1, p2, nrow = 1, ncol = 2) + theme_bw())
+      dev.off()
+    }
+
     # Assign order of rejection to input data frame based on residual rank-order
-    if(tail == "both") data$SOR_RANK[as.numeric(rownames(data.sub)[rev(order(abs(data.sub$resid)))])[rejection:(rejection+n.reject-1)]] <- c(rejection:(rejection+n.reject-1))
-    if(tail == "upper") data$SOR_RANK[as.numeric(rownames(data.sub)[rev(order(data.sub$resid))])[rejection:(rejection+n.reject-1)]] <- c(rejection:(rejection+n.reject-1))
-    if(tail == "lower") data$SOR_RANK[as.numeric(rownames(data.sub)[order(data.sub$resid)])[rejection:(rejection+n.reject-1)]] <- c(rejection:(rejection+n.reject-1))
+    # if(tail == "both") data$SOR_RANK[as.numeric(rownames(data.sub)[rev(order(abs(data.sub$resid)))])[rejection:(rejection+n.reject-1)]] <- c(rejection:(rejection+n.reject-1))
+    if(tail == "both") data$SOR_RANK[which(data$index == data.sub$index[which.max(abs(data.sub$resid))])] <- i
+    if(tail == "upper") data$SOR_RANK[which(data$index == data.sub$index[which.max(data.sub$resid)])] <- i
+    if(tail == "lower") data$SOR_RANK[which(data$index == data.sub$index[which.min(data.sub$resid)])] <- i
 
     # Calculate RMSE for iteration
     RMSE[i] <- mean(residuals(mod)^2)
-    NN[i] <- nrow(data.sub)
+    NN[i] <- i
+    PARSLOPE[i] <- coef(mod)[2]
 
     # Stop based on a threshold, as in Kotwicki et al. (2011)
     if(!is.null(threshold.stop)) {
@@ -76,6 +91,6 @@ sequentialOR <- function(data, method = 'lm', formula, n.reject = 1, n.stop, thr
 
   if(plot == T) print(plot(NN, RMSE, xlim = c(nrow(data) + n.reject, n.stop - n.reject)))
 
-  return(list(obs_rank = data, rmse = data.frame(N = NN, RMSE = RMSE)))
+  return(list(obs_rank = data, rmse = data.frame(N = NN, RMSE = RMSE, PARSLOPE = PARSLOPE)))
 
 }

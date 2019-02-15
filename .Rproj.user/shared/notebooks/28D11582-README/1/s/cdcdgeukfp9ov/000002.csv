@@ -1,8 +1,0 @@
-"0","devtools::install_github(""sean-rohan/trawllight"", auth_token = ""79feb97d6e1d799201531f1983c6775eb212f0f6"")
-"
-"2","Downloading GitHub repo sean-rohan/trawllight@master
-from URL https://api.github.com/repos/sean-rohan/trawllight/zipball/master
-"
-"2","Installation failed: Not Found (404)
-
-"
