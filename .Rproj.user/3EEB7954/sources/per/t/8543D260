@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "4286874523",
+    "hash" : "298532819",
     "id" : "8543D260",
-    "lastKnownWriteTime" : 1537995248,
-    "last_content_update" : 1537995248,
+    "lastKnownWriteTime" : 1551719717,
+    "last_content_update" : 1551719717,
     "path" : "D:/Projects/OneDrive/afsc/Light data processing/trawllight/R/filter_stepwise.R",
     "project_path" : null,
     "properties" : {
-        "cursorPosition" : "33,2",
-        "scrollLine" : "0"
+        "cursorPosition" : "33,0",
+        "scrollLine" : "7"
     },
     "relative_order" : 12,
     "source_on_save" : false,

@@ -31,7 +31,6 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
 
   # Remove measurements outside of time window
   light.data <- subset(light.data, !is.na(updown))
-  print(head(light.data))
   llight <- aggregate(surf_trans_llight ~ haul + updown + vessel + cruise, data = light.data, FUN = agg.fun)
   ctime <- aggregate(ctime ~ haul + updown + vessel + cruise, data = light.data, FUN = mean)
   ctime$ctime <- lubridate::with_tz(ctime$ctime, "America/Anchorage")
