@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2301254724",
+    "hash" : "1991420016",
     "id" : "4C5CF5FA",
-    "lastKnownWriteTime" : 1536954446,
-    "last_content_update" : 1536954446,
+    "lastKnownWriteTime" : 1553568936,
+    "last_content_update" : 1553568936,
     "path" : "D:/Projects/OneDrive/afsc/Light data processing/trawllight/R/calculate_attenuation.R",
     "project_path" : null,
     "properties" : {
-        "cursorPosition" : "18,25",
+        "cursorPosition" : "18,0",
         "scrollLine" : "0"
     },
     "relative_order" : 11,

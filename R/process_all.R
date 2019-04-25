@@ -10,7 +10,8 @@ process_all <- function(dir.structure,
                         binsize = 2,
                         bin.gap = 6,
                         kz.binsize = 0.5,
-                        silent = TRUE) {
+                        silent = TRUE,
+                        ...) {
 
   # Step 1. Input directory and CastTimes and corr_MK9_hauls files
 
@@ -41,12 +42,14 @@ process_all <- function(dir.structure,
 
       if(nrow(vert) > 0) {
         vert$trans_llight <- convert_light(vert$llight)
+
         filtered <- filter_stepwise(cast.data = vert,
                                     light.col = "trans_llight",
                                     depth.col = "cdepth",
                                     bin.size = binsize,
                                     bin.gap = bin.gap,
-                                    agg.fun = agg.fun)
+                                    agg.fun = agg.fun,
+                                    ...)
         atten.out <- calculate_attenuation(filtered, light.col = "trans_llight", depth.col = "cdepth", kz.binsize = kz.binsize)
 
         if(!is.null(atten.out)) {
