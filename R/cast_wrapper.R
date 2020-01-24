@@ -1,6 +1,10 @@
 #' Applies a function to all casts in a data frame
 #'
-#'
+#' @param x
+#' @param id.col
+#' @param FUN
+#' @param min.rows
+#' @param ...
 
 cast_wrapper <- function(x, id.col, FUN, min.rows = 4, ...) {
 

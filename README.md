@@ -4,7 +4,7 @@ TLUtilities
 Introduction
 ------------
 
-This package contains functions designed to process RACE light data using functions in the trawllight package. While trawllight provides functions to process light data, it is designed to work for a generic data structure, rather than being tailored to specifically processing RACE data. TLUtilities provides functions to read-in RACE data and iterate over casts to estimate optical parameters.
+The TLUtilities package contains supplementary functions for processing bottom-trawl survey light data. Implementation of the trawllight algorithm accomplished using While trawllight provides functions to process light data, it is designed to work for a generic data structure, rather than being tailored to specifically processing RACE data. TLUtilities provides functions to read-in RACE data and iterate over casts to estimate optical parameters.
 
 This document demonstrates how light data is processed using TLUtilities and trawllight.
 

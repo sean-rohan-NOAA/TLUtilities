@@ -14,4 +14,4 @@ Imports: mgcv,
         ggplot2,
         fishmethods,
         lubridate
-        
+RoxygenNote: 7.0.2
