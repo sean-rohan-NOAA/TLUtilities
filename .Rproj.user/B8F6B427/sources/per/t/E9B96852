@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1579890192076.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4086677180",
+    "id" : "E9B96852",
+    "lastKnownWriteTime" : 1579899177,
+    "last_content_update" : 1579899177393,
+    "path" : "~/afsc/Light data processing/TLUtilities/R/find_mk9_offset.R",
+    "project_path" : "R/find_mk9_offset.R",
+    "properties" : {
+        "cursorPosition" : "2,66",
+        "docOutlineVisible" : "0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

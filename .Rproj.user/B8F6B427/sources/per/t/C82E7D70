@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1579903296519.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1309641633",
+    "id" : "C82E7D70",
+    "lastKnownWriteTime" : 1579903463,
+    "last_content_update" : 1579903463132,
+    "path" : "~/afsc/Light data processing/TLUtilities/README.md",
+    "project_path" : "README.md",
+    "properties" : {
+        "cursorPosition" : "6,15",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "markdown"
+}
