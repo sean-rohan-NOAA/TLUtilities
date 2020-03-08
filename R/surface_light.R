@@ -15,7 +15,7 @@ surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = tra
   if(ncol(light.data) >= 6) {
   light.data <- light.data[,5:6]
   colnames(light.data) <- c("surf_llight", "ctime")
-  light.data$surf_trans_llight <- convert_light(light.data$surf_llight)
+  light.data$surf_trans_llight <- convert_light(light.data$surf_llight, ...)
   light.data$vessel <- rep(cast.data$vessel[1], nrow(light.data))
   light.data$cruise <- rep(cast.data$cruise[1], nrow(light.data))
 
