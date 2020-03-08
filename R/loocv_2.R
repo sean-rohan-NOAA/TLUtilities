@@ -14,7 +14,7 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
   names(dat)[which(names(dat) == lat.col)] <- "lat.col"
   names(dat)[which(names(dat) == lon.col)] <- "lon.col"
 
-  # Scaling added 07/16/2019
+  # Scale variables
   var.col.scaled <- scale(dat$var.col)
   dat$var.col <- var.col.scaled
 

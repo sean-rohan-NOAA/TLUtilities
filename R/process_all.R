@@ -41,7 +41,7 @@ process_all <- function(dir.structure,
       vert <- subset(vert, updown == cast.dir)
 
       if(nrow(vert) > 0) {
-        vert$trans_llight <- convert_light(vert$llight)
+        vert$trans_llight <- convert_light(vert$llight, ...)
 
         filtered <- filter_stepwise(cast.data = vert,
                                     light.col = "trans_llight",
