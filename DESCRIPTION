@@ -1,13 +1,14 @@
 Package: TLUtilities
 Type: Package
 Title: Useful functions for working with trawllight
-Version: 0.5.0
-Authors@R: person("Sean K.", "Rohan", email = "skrohan@uw.edu", role = c("aut", "cre"))
-Maintainer: Sean K. Rohan <skrohan@uw.edu>
+Version: 1.0.0
+Authors@R: person("Sean K.", "Rohan", email = "sean.rohan@noaa.gov", role = c("aut", "cre"))
+Maintainer: Sean K. Rohan <sean.rohan@noaa.gov>
 Description: This package contains functions which are used in conjunction with package trawllight.
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
+Depends: magrittr
 Imports: mgcv,
         plyr,
         dplyr,
