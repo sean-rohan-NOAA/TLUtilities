@@ -13,8 +13,7 @@ process_all <- function(dir.structure,
                         silent = TRUE,
                         ...) {
 
-  # Step 1. Input directory and CastTimes and corr_MK9_hauls files
-
+  print(convert.method)
   loess_eval <- 1
 
   for(i in 1:length(dir.structure)) {
