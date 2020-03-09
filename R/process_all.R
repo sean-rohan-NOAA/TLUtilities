@@ -12,8 +12,7 @@ process_all <- function(dir.structure,
                         kz.binsize = 0.5,
                         silent = TRUE,
                         ...) {
-
-  print(convert.method)
+  
   loess_eval <- 1
 
   for(i in 1:length(dir.structure)) {
