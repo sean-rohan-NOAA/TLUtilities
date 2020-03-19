@@ -76,43 +76,43 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
     idw.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = idw.predict$var1.pred))
 
     # Ordinary kriging
-    exp.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Exp")))
+    exp.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Exp")))
     exp.k_fit <- gstat(formula = var.col~1, locations = train, model = exp.vgfit_train, nmax = nm)
     exp.k.predict <- predict(exp.k_fit, fit_test)
     exp.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = exp.k.predict$var1.pred))
 
-    sph.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Sph")))
-    sph.k_fit <- gstat(formula = var.col~1, locations = train, model = sph.vgfit_train, nmax = nm)
+    sph.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Sph")))
+    sph.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = sph.vgfit_train, nmax = nm)
     sph.k.predict <- predict(sph.k_fit, fit_test)
     sph.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = sph.k.predict$var1.pred))
 
-    bes.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Bes")))
-    bes.k_fit <- gstat(formula = var.col~1, locations = train, model = bes.vgfit_train, nmax = nm)
+    bes.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Bes")))
+    bes.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = bes.vgfit_train, nmax = nm)
     bes.k.predict <- predict(bes.k_fit, fit_test)
     bes.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = bes.k.predict$var1.pred))
 
-    gau.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Gau")))
-    gau.k_fit <- gstat(formula = var.col~1, locations = train, model = gau.vgfit_train, nmax = nm)
+    gau.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Gau")))
+    gau.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = gau.vgfit_train, nmax = nm)
     gau.k.predict <- predict(gau.k_fit, fit_test)
     gau.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = gau.k.predict$var1.pred))
 
-    cir.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Cir")))
-    cir.k_fit <- gstat(formula = var.col~1, locations = train, model = cir.vgfit_train, nmax = nm)
+    cir.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Cir")))
+    cir.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = cir.vgfit_train, nmax = nm)
     cir.k.predict <- predict(cir.k_fit, fit_test)
     cir.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = cir.k.predict$var1.pred))
 
-    mat.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Mat")))
-    mat.k_fit <- gstat(formula = var.col~1, locations = train, model = mat.vgfit_train, nmax = nm)
+    mat.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Mat")))
+    mat.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = mat.vgfit_train, nmax = nm)
     mat.k.predict <- predict(mat.k_fit, fit_test)
     mat.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = mat.k.predict$var1.pred))
 
-    ste.vgfit_train <- fit.variogram(variogram(idw_fit), vgm(c("Ste")))
-    ste.k_fit <- gstat(formula = var.col~1, locations = train, model = ste.vgfit_train, nmax = nm)
+    ste.vgfit_train <- gstat::fit.variogram(variogram(idw_fit), vgm(c("Ste")))
+    ste.k_fit <- gstat::gstat(formula = var.col~1, locations = train, model = ste.vgfit_train, nmax = nm)
     ste.k.predict <- predict(ste.k_fit, fit_test)
     ste.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = ste.k.predict$var1.pred))
 
     # TPS
-    tps_fit <- Tps(coordinates(train), train$var.col)
+    tps_fit <- fields::Tps(coordinates(train), train$var.col)
     tps.predict <- predict(tps_fit, coordinates(fit_test))
     tps.rmse.mean[i] <- mean(RMSE(observed = fit_test$var.col, predicted = tps.predict[,1]))
 
