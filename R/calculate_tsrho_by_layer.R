@@ -9,19 +9,19 @@
 
 calculate_tsrho_by_layer <- function(t, s, rho, z, mld) {
   if(mld >= max(z)){
-    t_above <- mean(t)
+    t_above <- mean(t, na.rm = TRUE)
     t_below <- NA
-    s_above <- mean(s)
+    s_above <- mean(s, na.rm = TRUE)
     s_below <- NA
-    rho_above <- mean(rho)
+    rho_above <- mean(rho, na.rm = TRUE)
     rho_below <- NA
   } else {
-    t_above <- mean(t[z < mld])
-    t_below <- mean(t[z > mld])
-    s_above <- mean(s[z < mld])
-    s_below <- mean(s[z > mld])
-    rho_above <- mean(rho[z < mld])
-    rho_below  <- mean(rho[z > mld])
+    t_above <- mean(t[z < mld], na.rm = TRUE)
+    t_below <- mean(t[z > mld], na.rm = TRUE)
+    s_above <- mean(s[z < mld], na.rm = TRUE)
+    s_below <- mean(s[z > mld], na.rm = TRUE)
+    rho_above <- mean(rho[z < mld], na.rm = TRUE)
+    rho_below  <- mean(rho[z > mld], na.rm = TRUE)
   }
 
   return(list(t_above = t_above, 

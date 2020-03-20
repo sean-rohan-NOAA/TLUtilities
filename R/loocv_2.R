@@ -8,16 +8,31 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
                     var.col, # Name of the column with the interpolation variable
                     lat.col, # Name of the column with latitude. Latitude in decimal degrees, where western hemisphere negative values.
                     lon.col, # Name of the column with longitude. Longitude in decimal degrees, where northern hemisphere positive values.
+                    in.proj = "+proj=longlat +datum=NAD83",
+                    interp.proj = "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
+                    trans.vars = FALSE, # Should variables be transformed for fitting? Options: log, exp
+                    scale.vars = FALSE, # Should variables be scaled?
+                    scale.center = TRUE, # Passed to scale() for 
+                    scale.scale = TRUE,
                     pre) {
 
   names(dat)[which(names(dat) == var.col)] <- "var.col"
   names(dat)[which(names(dat) == lat.col)] <- "lat.col"
   names(dat)[which(names(dat) == lon.col)] <- "lon.col"
 
+  # Transform variables
+  if(trans.vars == "log") {
+    dat$var.col <- log(dat$var.col)
+  } else if(trans.vars == "exp") {
+    dat$var.col <- exp(dat$var.col)
+  }
+  
   # Scale variables
-  var.col.scaled <- scale(dat$var.col)
-  dat$var.col <- var.col.scaled
-
+  if(scale.vars) {
+    var.col.scaled <- scale(dat$var.col, center = scale.center, scale = scale.scale)
+    dat$var.col <- var.col.scaled
+  }
+  
   # Define projection
   race.proj <- "+proj=longlat +datum=NAD83"
   aea.proj <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
@@ -129,7 +144,8 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
                                 Ste = ste.rmse.mean,
                                 Tps = tps.rmse.mean,
                                 cruise = cruise,
-                                stationid = stationid)
+                                stationid = stationid,
+                                transform.vars = trans.vars)
 
   write.csv(sp_compare.rmse, file = paste0("./output/", Sys.Date(), "_rmse_loocv", pre, ".csv"), row.names = F)
   print(colMeans(sp_compare.rmse[,c(1:10)]))
@@ -160,7 +176,18 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
   } else {
     print("Invalid interpolation method")
   }
-  # Added 07/16/2019: Scaling
-  output_raster * attr(var.col.scaled, 'scaled:scale') + attr(var.col.scaled, 'scaled:center')
+  
+  # Return to original scale
+  if(scale.vars) {
+    output_raster <- output_raster * attr(var.col.scaled, 'scaled:scale') + attr(var.col.scaled, 'scaled:center')
+  }
+  
+  # Back-transform variables
+  if(trans.vars == "log") {
+    output_raster <- exp(output_raster)
+  } else if(trans.vars == "exp") {
+    output_raster <- log(output_raster)
+  }
+  
   return(output_raster)
 }
