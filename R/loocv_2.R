@@ -36,11 +36,12 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
   # Define projection
   race.proj <- "+proj=longlat +datum=NAD83"
   aea.proj <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
-  fed.proj <- sp::CRS("+init=epsg:3338 +datum=NAD83")
+  fed.proj <- sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m")
 
   # Initialize raster and mask for interpolation
-  sp_interp.raster <- raster::raster(xmn=-179,xmx=-155,ymn=53.5,ymx=64,nrow=500,ncol=500)
-  raster::projection(sp_interp.raster) <- race.proj # Define interpolation raster
+  # Initialize raster for interpolation on a 5 km x 5 km grid
+    sp_interp.raster <- raster(xmn=-1625000,xmx=-35000,ymn=379500,ymx=1969500,nrow=318,ncol=318)
+    projection(sp_interp.raster) <- "+init=epsg:3338 +datum=NAD83 +units=m" # Define interpolation raster
 
   # RMSE function
   RMSE <- function(observed, predicted) {
@@ -55,6 +56,7 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
   sp_interp.df <- unique(dat)
   sp::coordinates(sp_interp.df) <- c(x = "lon.col", y = "lat.col")
   sp::proj4string(sp_interp.df) <- sp::CRS(race.proj)
+  sp_interp.df <- sp::spTransform(sp_interp.df, sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m"))
 
   null.rmse <- RMSE(mean(sp_interp.df$var.col), sp_interp.df$var.col)
 

@@ -7,7 +7,7 @@
 #' @param mld Mixed layer depth 
 
 
-calculate_tsrho_by_layer <- function(t, s, rho, z, mld) {
+calculate_tsrho_by_layer <- function(t, s, rho, z, mld, mld.buffer) {
   if(mld >= max(z)){
     t_above <- mean(t, na.rm = TRUE)
     t_below <- NA
@@ -15,13 +15,20 @@ calculate_tsrho_by_layer <- function(t, s, rho, z, mld) {
     s_below <- NA
     rho_above <- mean(rho, na.rm = TRUE)
     rho_below <- NA
+  } else if(mld+30 >= max(z)){
+    t_above <- mean(t[z < mld], na.rm = TRUE)
+    t_below <- mean(t[z > max(z)-4], na.rm = TRUE)
+    s_above <- mean(s[z < mld], na.rm = TRUE)
+    s_below <- mean(s[z > max(z)-4], na.rm = TRUE)
+    rho_above <- mean(rho[z < mld], na.rm = TRUE)
+    rho_below  <- mean(rho[z > max(z)-4], na.rm = TRUE)
   } else {
     t_above <- mean(t[z < mld], na.rm = TRUE)
-    t_below <- mean(t[z > mld], na.rm = TRUE)
+    t_below <- mean(t[z > mld+30], na.rm = TRUE)
     s_above <- mean(s[z < mld], na.rm = TRUE)
-    s_below <- mean(s[z > mld], na.rm = TRUE)
+    s_below <- mean(s[z > mld+30], na.rm = TRUE)
     rho_above <- mean(rho[z < mld], na.rm = TRUE)
-    rho_below  <- mean(rho[z > mld], na.rm = TRUE)
+    rho_below  <- mean(rho[z > mld+30], na.rm = TRUE)
   }
 
   return(list(t_above = t_above, 

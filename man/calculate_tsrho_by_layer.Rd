@@ -4,7 +4,7 @@
 \alias{calculate_tsrho_by_layer}
 \title{Calculate temperature, salinity, and density for each layer}
 \usage{
-calculate_tsrho_by_layer(t, s, rho, z, mld)
+calculate_tsrho_by_layer(t, s, rho, z, mld, mld.buffer)
 }
 \arguments{
 \item{t}{temperature vector}
