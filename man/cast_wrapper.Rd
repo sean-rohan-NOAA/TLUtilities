@@ -4,7 +4,7 @@
 \alias{cast_wrapper}
 \title{Applies a function to all casts in a data frame}
 \usage{
-cast_wrapper(x, id.col, FUN, min.rows = 4, ...)
+cast_wrapper(x, id.col, FUN, min.rows = 4, silent = TRUE, ...)
 }
 \description{
 Applies a function to all casts in a data frame

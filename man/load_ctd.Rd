@@ -6,11 +6,14 @@
 \usage{
 load_ctd(
   loc = paste0(seantools::root.dir(),
-    "Thesis/Chapter 1/data/CTD/output/2019-04-11_ebs_shelf_ctd_2008_2018.rds")
+    "Thesis/Chapter 1/data/CTD/output/2019-04-11_ebs_shelf_ctd_2008_2018.rds"),
+  stn.sel = TLUtilities::survey_stations(region = "shelf")
 )
 }
 \arguments{
 \item{loc}{File path for rds file. Columns should include: station, temperature, totdepth, bindepth, salinity, dyn_ht_anom, latitude, longitude, date_ind, year}
+
+\item{stn.sel}{Vector of station names to include in the data.}
 }
 \description{
 Load CTD data from .rds files

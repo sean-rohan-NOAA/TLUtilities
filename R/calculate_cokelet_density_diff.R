@@ -11,13 +11,13 @@ calculate_cokelet_density_diff <- function(rho, z, mld, ref.depth = 5, mld.buffe
   rho.upper <- NA
   rho.lower <- NA
   if(min(abs(z-ref.depth)) < 3){
-    rho.upper <- mean(rho[which(z <= ref.depth)])
+    rho.upper <- mean(rho[z <= ref.depth])
   }
   lower.ref <- mld + 30
   if(lower.ref < max(z)) {
-    rho.lower <- rho[which(z == lower.ref)]
+    rho.lower <- mean(rho[z > lower.ref])
   } else {
-    rho.lower <- rho[which(z == max(z))]
+    rho.lower <- rho[z == max(z)]
   }
   diff.rho <- rho.lower - rho.upper
   return(diff.rho)

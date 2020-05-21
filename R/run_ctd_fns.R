@@ -5,6 +5,7 @@
 run_ctd_fns <- function(dat) {
   profiles <- unique(dplyr::select(dat, stationid, cruise, totdepth, latitude, longitude))
   profiles$mld <- -99
+  profiles$bld <- -99 ##
   profiles$density.diff <- -99
   profiles$pycnocline <- -99
   profiles$t_above <- -99
@@ -20,8 +21,11 @@ run_ctd_fns <- function(dat) {
     profile.sel <- profile.sel[order(profile.sel$bindepth),]
     profiles$mld[i] <- calculate_cokelet_mld(rho = profile.sel$sigma_t, 
                                 z = profile.sel$bindepth, 
-                                totdepth = profile.sel$totdepth, 
+                                totdepth = max(profile.sel$bindepth), 
                                 ref.depth = 5)
+    profiles$bld[i] <- calculate_bld(rho = profile.sel$sigma_t, 
+                                     z = profile.sel$bindepth, 
+                                     totdepth = max(profile.sel$bindepth))
     profiles$density.diff[i] <- calculate_cokelet_density_diff(mld = profiles$mld[i],
                                                       rho = profile.sel$sigma_t, 
                                                       z = profile.sel$bindepth)

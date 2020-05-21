@@ -1,35 +1,30 @@
-# Sean K. Rohan <skrohan@uw.edu>
-# Last update: February 28, 2019
-# Spatial interpolation with interpolation method selection based on leave-one-out cross validation
+#' Perform leave-one-out cross-validation and spatial interpolation on EBS data
+#' 
+#' Sean K. Rohan <sean.rohan@@noaa.gov>
+#' Last update: February 28, 2019
+#' Spatial interpolation with interpolation method selection based on leave-one-out cross validation
+#'
+#' @param dat Data frame that contains latitude, longitude, and a variable to be interpolated.
+#' @param var.col Name of the variable column that is to be interpolated
+#' @param lat.col Name of the latitude column
+#' @param lon.col Name of the longitude column
+#' @param in.proj Projection for the input data
+#' @param interp.proj Projection for the interpolation/output
+#' @param scale.vars Should variable be scaled?
+#' @param center Passed to \code{scale} if scale.vars == TRUE
+#' @param scale Passed to \code{scale}  if scale.vars == TRUE
+#' @param nm Maximum number of neighboring stations to use for interpolation.
+#' @param pre Prefix for name of the output file. Default (NA) uses variable name from var.col
 
-
-loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpolation
-                    dat, # Input data frame
-                    var.col, # Name of the column with the interpolation variable
-                    lat.col, # Name of the column with latitude. Latitude in decimal degrees, where western hemisphere negative values.
-                    lon.col, # Name of the column with longitude. Longitude in decimal degrees, where northern hemisphere positive values.
-                    in.proj = "+proj=longlat +datum=NAD83",
-                    interp.proj = "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
-                    trans.vars = FALSE, # Should variables be transformed for fitting? Options: log, exp
-                    scale.vars = FALSE, # Should variables be scaled?
-                    scale.center = TRUE, # Passed to scale() for 
-                    scale.scale = TRUE,
-                    pre) {
+loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +datum=NAD83", interp.proj = "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs", scale.vars = FALSE, center = TRUE, scale = TRUE, nm = Inf, pre = NA, ...) {
 
   names(dat)[which(names(dat) == var.col)] <- "var.col"
   names(dat)[which(names(dat) == lat.col)] <- "lat.col"
   names(dat)[which(names(dat) == lon.col)] <- "lon.col"
-
-  # Transform variables
-  if(trans.vars == "log") {
-    dat$var.col <- log(dat$var.col)
-  } else if(trans.vars == "exp") {
-    dat$var.col <- exp(dat$var.col)
-  }
   
   # Scale variables
   if(scale.vars) {
-    var.col.scaled <- scale(dat$var.col, center = scale.center, scale = scale.scale)
+    var.col.scaled <- scale(dat$var.col, center = center, scale = scale)
     dat$var.col <- var.col.scaled
   }
   
@@ -146,10 +141,15 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
                                 Ste = ste.rmse.mean,
                                 Tps = tps.rmse.mean,
                                 cruise = cruise,
-                                stationid = stationid,
-                                transform.vars = trans.vars)
+                                stationid = stationid)
+  
+  
+  # Name for the output file if not provided
+  if(is.na(pre)) {
+    pre <- var.col
+  }
 
-  write.csv(sp_compare.rmse, file = paste0("./output/", Sys.Date(), "_rmse_loocv", pre, ".csv"), row.names = F)
+  write.csv(sp_compare.rmse, file = paste0("./output/", Sys.Date(), "_rmse_loocv_", pre, ".csv"), row.names = F)
   print(colMeans(sp_compare.rmse[,c(1:10)]))
 
   # Calulate RMSE from cross validation
@@ -182,13 +182,6 @@ loocv_2 <- function(nm = Inf, # Maximum number of stations for spatial interpola
   # Return to original scale
   if(scale.vars) {
     output_raster <- output_raster * attr(var.col.scaled, 'scaled:scale') + attr(var.col.scaled, 'scaled:center')
-  }
-  
-  # Back-transform variables
-  if(trans.vars == "log") {
-    output_raster <- exp(output_raster)
-  } else if(trans.vars == "exp") {
-    output_raster <- log(output_raster)
   }
   
   return(output_raster)
