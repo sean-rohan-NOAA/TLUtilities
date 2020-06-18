@@ -10,8 +10,7 @@ loocv_2(
   lat.col,
   lon.col,
   in.proj = "+proj=longlat +datum=NAD83",
- 
-    interp.proj = "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
+  interp.proj = "+init=epsg:3338 +datum=NAD83 +units=m",
   scale.vars = FALSE,
   center = TRUE,
   scale = TRUE,
@@ -41,7 +40,7 @@ loocv_2(
 
 \item{nm}{Maximum number of neighboring stations to use for interpolation.}
 
-\item{pre}{}
+\item{pre}{Prefix for name of the output file. Default (NA) uses variable name from var.col}
 }
 \description{
 Sean K. Rohan <sean.rohan@noaa.gov>

@@ -16,7 +16,7 @@
 #' @param nm Maximum number of neighboring stations to use for interpolation.
 #' @param pre Prefix for name of the output file. Default (NA) uses variable name from var.col
 
-loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +datum=NAD83", interp.proj = "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs", scale.vars = FALSE, center = TRUE, scale = TRUE, nm = Inf, pre = NA, ...) {
+loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +datum=NAD83", interp.proj = "+init=epsg:3338 +datum=NAD83 +units=m", scale.vars = FALSE, center = TRUE, scale = TRUE, nm = Inf, pre = NA, ...) {
 
   names(dat)[which(names(dat) == var.col)] <- "var.col"
   names(dat)[which(names(dat) == lat.col)] <- "lat.col"
@@ -29,9 +29,9 @@ loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +da
   }
   
   # Define projection
-  race.proj <- "+proj=longlat +datum=NAD83"
-  aea.proj <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
-  fed.proj <- sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m")
+  # race.proj <- "+proj=longlat +datum=NAD83"
+  # aea.proj <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
+  # fed.proj <- sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m")
 
   # Initialize raster and mask for interpolation
   # Initialize raster for interpolation on a 5 km x 5 km grid
@@ -50,7 +50,7 @@ loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +da
   # Initialize optical depth spatial data frame for kriginging
   sp_interp.df <- unique(dat)
   sp::coordinates(sp_interp.df) <- c(x = "lon.col", y = "lat.col")
-  sp::proj4string(sp_interp.df) <- sp::CRS(race.proj)
+  sp::proj4string(sp_interp.df) <- sp::CRS(in.proj)
   sp_interp.df <- sp::spTransform(sp_interp.df, sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m"))
 
   null.rmse <- RMSE(mean(sp_interp.df$var.col), sp_interp.df$var.col)
