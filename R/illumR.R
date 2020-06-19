@@ -1,6 +1,6 @@
 #' Vectorized version of Janiczek and DeYoung (1987) for R
 #' 
-#' @param IY Input year
+#' @param IY Input year.
 #' @param IM Input month
 #' @param ID Input day
 #' @param LO Longitude
@@ -8,14 +8,16 @@
 #' @param ZZ Which timezone (0 = GMT, 1 = standard zone time, 2 = local mean time)
 #' @param SK Sky condition. (1 = Sun/moon visible, sky <70% overcast, 2 = sun/moon obscured by thin clouds, 3 = sun/moon obscured by average clouds, 10 = sun/moon obscured by dark stratus clouds (rare))
 #' @param HR Time based on a 24 hour clock, as a numeric vector (e.g. enter 1330 for 13:30, 820 for 8:20) 
+#' @param full.output If true, returns sun and moon separately.
+#' @param match.mk In testing.
 #' @return Illuminance (lux) at the Earth's surface.
 #' @author Sean Rohan <sean.rohan@@noaa.gov>
 #' @references Janiczek, P. M., and DeYoung, J.A. 1987. Computer programs for sun and moon illuminance with contingent tables and diagrams. US Nav. Observ. Circ. 171.
 
+illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE, match.mk = FALSE) {
 
-illumR <- function(IY = 1997, IM = 8, ID = 31, LO = -175, FINIT = 60.5, ZZ = 2, SK = 1, HR = 1020) {
-  
   # Temporary fix to handle discrepancy between f90 and R
+  if(match.mk) {
   if(nchar(HR) == 4) {
     if(as.numeric(substr(HR, 3, 4)) != 0) {
       new_min<- HR%%100 * 0.625
@@ -26,6 +28,7 @@ illumR <- function(IY = 1997, IM = 8, ID = 31, LO = -175, FINIT = 60.5, ZZ = 2, 
       new_min<- HR%%100 * 0.625
       HR <- as.numeric(paste(c(substr(HR,1,1), 0, 0), sep = "", collapse = "")) + new_min
     }
+  }
   }
   
   DEG <- function(x) {
@@ -218,12 +221,17 @@ illumR <- function(IY = 1997, IM = 8, ID = 31, LO = -175, FINIT = 60.5, ZZ = 2, 
  PP <- 0.892*exp(-3.343/((tan(EE/2.0))^0.632))+0.0344*(sin(EE)-EE*cos(EE))
  PP <- 0.418*PP/(1.0-0.005*cos(EE)-0.03*sin(ZZ))
  IL <- PP*MM/SK
+ ISUN <- IS
+ IMOON <- IL
  IS <- IS+IL+0.0005/SK
  IAZ <- AZ
  IHA <- HA
  
  IHA <- 50 * (1-cos(EE)) + 0.5
  
- return(IS)
+ if(full.output) {
+   IS <- list(SUN_ILL = ISUN, MOON_ILL = IMOON)
+ }
  
+ return(IS)
 }
