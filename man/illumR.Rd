@@ -4,7 +4,18 @@
 \alias{illumR}
 \title{Vectorized version of Janiczek and DeYoung (1987) for R}
 \usage{
-illumR(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE)
+illumR(
+  IY,
+  IM,
+  ID,
+  LO,
+  FINIT,
+  ZZ,
+  SK,
+  HR,
+  full.output = FALSE,
+  match.mk = FALSE
+)
 }
 \arguments{
 \item{IY}{Input year.}
@@ -24,6 +35,8 @@ illumR(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE)
 \item{HR}{Time based on a 24 hour clock, as a numeric vector (e.g. enter 1330 for 13:30, 820 for 8:20)}
 
 \item{full.output}{If true, returns sun and moon separately.}
+
+\item{match.mk}{In testing.}
 }
 \value{
 Illuminance (lux) at the Earth's surface.
@@ -33,7 +46,4 @@ Vectorized version of Janiczek and DeYoung (1987) for R
 }
 \references{
 Janiczek, P. M., and DeYoung, J.A. 1987. Computer programs for sun and moon illuminance with contingent tables and diagrams. US Nav. Observ. Circ. 171.
-}
-\author{
-Sean Rohan <sean.rohan@noaa.gov>
 }

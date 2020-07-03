@@ -11,7 +11,6 @@
 #' @param full.output If true, returns sun and moon separately.
 #' @param match.mk In testing.
 #' @return Illuminance (lux) at the Earth's surface.
-#' @author Sean Rohan <sean.rohan@@noaa.gov>
 #' @references Janiczek, P. M., and DeYoung, J.A. 1987. Computer programs for sun and moon illuminance with contingent tables and diagrams. US Nav. Observ. Circ. 171.
 
 illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE, match.mk = FALSE) {
