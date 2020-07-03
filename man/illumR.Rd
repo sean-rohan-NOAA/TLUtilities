@@ -30,7 +30,7 @@ illumR(
 
 \item{ZZ}{Which timezone (0 = GMT, 1 = standard zone time, 2 = local mean time)}
 
-\item{SK}{Sky condition. (1 = Sun/moon visible, sky <70% overcast, 2 = sun/moon obscured by thin clouds, 3 = sun/moon obscured by average clouds, 10 = sun/moon obscured by dark stratus clouds (rare))}
+\item{SK}{Sky condition. (1 = Sun/moon visible, sky <70\% overcast, 2 = sun/moon obscured by thin clouds, 3 = sun/moon obscured by average clouds, 10 = sun/moon obscured by dark stratus clouds (rare))}
 
 \item{HR}{Time based on a 24 hour clock, as a numeric vector (e.g. 820, 1330)}
 
