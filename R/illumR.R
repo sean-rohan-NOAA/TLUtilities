@@ -7,7 +7,7 @@
 #' @param FINIT LATITUDE
 #' @param ZZ Which timezone (0 = GMT, 1 = standard zone time, 2 = local mean time)
 #' @param SK Sky condition. (1 = Sun/moon visible, sky <70% overcast, 2 = sun/moon obscured by thin clouds, 3 = sun/moon obscured by average clouds, 10 = sun/moon obscured by dark stratus clouds (rare))
-#' @param HR Time based on a 24 hour clock, as a numeric vector (e.g. enter 1330 for 13:30, 820 for 8:20) 
+#' @param HR Time based on a 24 hour clock, as a numeric vector (e.g. 820, 1330) 
 #' @param full.output If true, returns sun and moon separately.
 #' @param match.mk In testing.
 #'
