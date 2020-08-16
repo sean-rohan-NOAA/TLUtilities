@@ -9,30 +9,13 @@
 #' @param SK Sky condition. (1 = Sun or moon visible, sky less than 70 percentovercast, 2 = sun or moon obscured by thin clouds, 3 = sun or moon obscured by average clouds, 10 = sun/moon obscured by dark stratus clouds (rare))
 #' @param HR Time based on a 24 hour clock, as a numeric vector (e.g. 820, 1330) 
 #' @param full.output If true, returns sun and moon separately.
-#' @param match.mk In testing.
-#'
 #' @return Illuminance (lux) at the Earth's surface.
 
-illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE, match.mk = FALSE) {
+illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   
-  # Temporary fix to handle discrepancy between MK Fortran and R code-------------------------------
-  if(match.mk) {
-    if(nchar(HR) == 4) {
-      if(as.numeric(substr(HR, 3, 4)) != 0) {
-        new_min<- HR%%100 * 0.625
-        HR <- as.numeric(paste(c(substr(HR,1,2), 0, 0), sep = "", collapse = "")) + new_min
-      }
-    } else if(nchar(HR) == 3) {
-      if(as.numeric(substr(HR, 2, 3)) != 0) {
-        new_min<- HR%%100 * 0.625
-        HR <- as.numeric(paste(c(substr(HR,1,1), 0, 0), sep = "", collapse = "")) + new_min
-      }
-    }
-  }
-  
-  
+  # Function to convert clock time to decimal time.
   DEG <- function(x) {
-    x + ((x-as.integer(x)) * 10)/6
+    as.integer(x) + ((x-as.integer(x))*100/60)
   }
   
   # Set up parameters-------------------------------------------------------------------------------

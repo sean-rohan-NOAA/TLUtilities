@@ -4,18 +4,7 @@
 \alias{illumR}
 \title{Vectorized version of Janiczek and DeYoung (1987) for R}
 \usage{
-illumR(
-  IY,
-  IM,
-  ID,
-  LO,
-  FINIT,
-  ZZ,
-  SK,
-  HR,
-  full.output = FALSE,
-  match.mk = FALSE
-)
+illumR(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE)
 }
 \arguments{
 \item{IY}{Input year.}
@@ -35,8 +24,6 @@ illumR(
 \item{HR}{Time based on a 24 hour clock, as a numeric vector (e.g. 820, 1330)}
 
 \item{full.output}{If true, returns sun and moon separately.}
-
-\item{match.mk}{In testing.}
 }
 \value{
 Illuminance (lux) at the Earth's surface.
