@@ -61,6 +61,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   
   GG <- (357.5 + 0.98560 * DD) * DR
   LS <- (TT + 1.91 * sin(GG)) * DR
+  T_0 <- LS #
   AS <- atan(CE * tan(LS)) * RD
   YY <- cos(LS)
   
@@ -82,7 +83,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   QQ <- SD * CI - CD * SI * CS
   PP <- -CD * sin(HH * DR)
   AZ <- atan(PP/QQ) * RD
-  
+
   if(QQ < 0) {
     AZ <- AZ + 180
   }
@@ -94,12 +95,10 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   AZ <- AZ + 0.5
   HH <- asin(SD * SI + CD * CI *CS) * RD
   #-------------------------------------------------------------------------------------------------
-  
   ZZ <- HH * DR
   HH <- HH - 0.95 * (NN-1) * cos(HH*DR)
   
   # REFR--------------------------------------------------------------------------------------------
-  
   HA <- HH
   
   if(HH < (-5/6)) {
@@ -125,7 +124,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   
   # MOON--------------------------------------------------------------------------------------------
   VV <- 218.32 + 13.1764*DD
-  VV <- VV * VV/360*360
+  VV <- VV - as.integer(VV/360)*360
   if(VV < 0) {
     VV <- VV + 360
   }
@@ -152,6 +151,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
     AS <- AS+180
   }
   DS <- asin(SD)
+  
   # ------------------------------------------------------------------------------------------------
   
   HH <- TT - AS
@@ -212,7 +212,9 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   IHA <- 50 * (1-cos(EE)) + 0.5
   
   if(full.output) {
-    IS <- list(SUN_ILL = ISUN, MOON_ILL = IMOON)
+    IS <- data.frame(SUN_ILL = ISUN, MOON_ILL = IMOON, AS = AS, AZ = AZ, CB = CB, CE = CE, DR = DR, EE = EE, GG = GG, HA = HA, HH = HH, HINIT = HINIT, HR = HR, IAZ = IAZ, ID = ID, IHA = IHA, IL = IL, IM = IM, IS = IS,
+                     IY = IY, JJ = JJ, LI = LI, LO = LO, LS = LS, MM = MM, NN = NN, OO = OO, PP = PP, QQ = QQ, RD = RD, SB = SB, SD = SD, SE = SE, SI = SI, SK = SK, SS = SS,
+                     SV = SV, TT = TT, T_0 = T_0, UU = UU, VV = VV, WW = WW, XX = XX, YY = YY, ZT = ZT, ZZ = ZZ)
   }
   
   return(IS)
