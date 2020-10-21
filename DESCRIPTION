@@ -7,7 +7,7 @@ Maintainer: Sean K. Rohan <sean.rohan@noaa.gov>
 Description: This package contains functions which are used in conjunction with package trawllight.
 License: GPL (>=2)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Depends: magrittr,
         fields,
         gstat,
