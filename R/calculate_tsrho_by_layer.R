@@ -30,11 +30,16 @@ calculate_tsrho_by_layer <- function(t, s, rho, z, mld, mld.buffer) {
     rho_above <- mean(rho[z < mld], na.rm = TRUE)
     rho_below  <- mean(rho[z > mld+30], na.rm = TRUE)
   }
+  
+  t_average <- mean(t, na.rm = TRUE)
+  s_average <- mean(s, na.rm = TRUE)
 
   return(list(t_above = t_above, 
               t_below = t_below, 
               s_above = s_above, 
               s_below = s_below,
               rho_above = rho_above, 
-              rho_below = rho_below))
+              rho_below = rho_below,
+              t_average = t_average,
+              s_average = s_average))
 }

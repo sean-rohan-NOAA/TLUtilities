@@ -1,7 +1,14 @@
-#' Wrapper for filter_stepwise and calculate_attenuation
+#' Wrapper function for filter_stepwise and calculate_attenuation using RACE data structure.
 #'
-#' This function is designed to work with the RACE data structure to subset. all of the Mk9 data obtained during upscasts and downcasts and runs functions convert_light, filter_stepwise, and calculate_attenuation on the data. The directory structure needs to be input for the function to work.
-#'
+#' This function is designed to work with the file structure of RACE light data to subset all of the Mk9 data obtained during upscasts and downcasts. process_all runs functions trawllight::convert_light, trawllight::filter_stepwise, and trawllight::calculate_attenuation on the data.
+#' 
+#' @param dir.structure Vector of file paths to directories containing corr_MK9hauls.csv and CastTimes.csv files.
+#' @param time.buffer Buffer around upcast_start and downcast_start
+#' @param cast.dir Cast direction, either 'Downcast' or 'Upcast'
+#' @param agg.fun Function to use to calculate light for a depth bin (Default = median)
+#' @param binsize Bin width for depth bins
+#' @param bin.gap Maximum gap in depth bins for a cast to still be considered 'good'
+#' @param kz.binsize Bin size for interpolation
 
 process_all <- function(dir.structure,
                         time.buffer = 20,
@@ -12,8 +19,11 @@ process_all <- function(dir.structure,
                         kz.binsize = 0.5,
                         silent = TRUE,
                         ...) {
+  
+  # Initialize
   loess_eval <- 1
 
+  # Loops over directory structure ----
   for(i in 1:length(dir.structure)) {
 
     if(file.exists(paste(dir.structure[i], "/corr_MK9hauls.csv", sep = "")) &
@@ -32,22 +42,22 @@ process_all <- function(dir.structure,
       if(!silent) {
         print(paste("Cruise: ", casttimes$cruise[j], ", Vessel: ", casttimes$vessel[j], ", Haul: ", casttimes$haul[j], sep = ""))
       }
-      vert <- vertical_profiles(light.data = corr_mk9hauls,
+      vert <- TLUtilities::vertical_profiles(light.data = corr_mk9hauls,
                                 cast.data = subset(casttimes, haul == casttimes$haul[j]))
 
       vert <- subset(vert, updown == cast.dir)
 
       if(nrow(vert) > 0) {
-        vert$trans_llight <- convert_light(vert$llight, ...)
+        vert$trans_llight <- trawllight::convert_light(vert$llight, ...)
 
-        filtered <- filter_stepwise(cast.data = vert,
+        filtered <- trawllight::filter_stepwise(cast.data = vert,
                                     light.col = "trans_llight",
                                     depth.col = "cdepth",
                                     bin.size = binsize,
                                     bin.gap = bin.gap,
                                     agg.fun = agg.fun,
                                     ...)
-        atten.out <- calculate_attenuation(filtered, light.col = "trans_llight", depth.col = "cdepth", kz.binsize = kz.binsize)
+        atten.out <- trawllight::calculate_attenuation(filtered, light.col = "trans_llight", depth.col = "cdepth", kz.binsize = kz.binsize)
 
         if(!is.null(atten.out)) {
           atten.out$attenuation$vessel <- vert$vessel[1]
@@ -65,7 +75,7 @@ process_all <- function(dir.structure,
 
         }
 
-        lr.out <- light_proportion(filtered)
+        lr.out <- trawllight::light_proportion(filtered)
 
         if(cast.dir == "Upcast") {
           lr.out$surface_time <- casttimes$upcast_end[j]

@@ -14,6 +14,8 @@ run_ctd_fns <- function(dat) {
   profiles$s_below <- -99
   profiles$rho_above <- -99
   profiles$rho_below <- -99
+  profiles$t_average <- -99
+  profiles$s_average <- -99
   
   for(i in 1:nrow(profiles)) {
     profile.sel <- subset(dat, cruise == profiles$cruise[i] & stationid == profiles$stationid[i])
@@ -45,6 +47,9 @@ run_ctd_fns <- function(dat) {
     profiles$s_below[i] <- tsrho.layers$s_below
     profiles$rho_above[i] <- tsrho.layers$rho_above
     profiles$rho_below[i] <- tsrho.layers$rho_below
+    profiles$t_average[i] <- tsrho.layers$t_average
+    profiles$s_average[i] <- tsrho.layers$s_average
+    
   }
   return(profiles)
 }

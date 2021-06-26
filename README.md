@@ -421,20 +421,6 @@ ggplot(data = direct_residuals$resid_df, aes(x = direct_residual)) + geom_densit
 
 ![](README_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
-#### Indirect method
+### Legal disclaimer
 
-The `trawllight::tag_residuals_indirect` function requires the following arguments: *`x` A data frame which should contain all of the `light_ratios` returned by `process_all`. *`formula` Model formula passed to mgcv::gam *`utc.offset` The timezone in the data frame relative to UTC. -8 for summer surveys *`lat.col`, `lon.col`, `time.col`, `light.col` Names of columns containing necessary data. See function documentation for details.
-
-``` r
-indirect <- tag_residuals_indirect(x = x, 
-                       formula = log10(trans_llight) ~ s(PAR, bs = "cr"),
-                       utc.offset = -8,
-                       lat.col = "start_latitude",
-                       lon.col = "start_longitude",
-                       time.col = "start_time",
-                       light.col = "trans_llight")
-```
-
-#### Alternative methods
-
-I explored some additional options for threshold-based rejection of casts. The sequential outlier rejection algorithm is implemented in TLUtilities as `sequentialOR`. The funciton iteratively fits a regression model to the data and rejects the most extreme outlier. The function includes documentation (`?sequentialOR`) and a vignette. I've also explored using extreme value analysis, but it is not currently implemented in TLUtilities. Both sequential outlier rejection and extreme value analysis require selection of a probablity density function for modelling error.
+This repository is a software product and is not official communication of the National Oceanic and Atmospheric Administration (NOAA), or the United States Department of Commerce (DOC). All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the DOC or DOC bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation, or favoring by the DOC. The DOC seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by the DOC or the United States Government.

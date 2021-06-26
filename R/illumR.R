@@ -94,6 +94,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   
   AZ <- AZ + 0.5
   HH <- asin(SD * SI + CD * CI *CS) * RD
+  SUN_ZEN <- 90 - HH # Not in the original J&D model
   #-------------------------------------------------------------------------------------------------
   ZZ <- HH * DR
   HH <- HH - 0.95 * (NN-1) * cos(HH*DR)
@@ -212,7 +213,7 @@ illumR <- function(IY, IM, ID, LO, FINIT, ZZ, SK, HR, full.output = FALSE) {
   IHA <- 50 * (1-cos(EE)) + 0.5
   
   if(full.output) {
-    IS <- data.frame(SUN_ILL = ISUN, MOON_ILL = IMOON, AS = AS, AZ = AZ, CB = CB, CE = CE, DR = DR, EE = EE, GG = GG, HA = HA, HH = HH, HINIT = HINIT, HR = HR, IAZ = IAZ, ID = ID, IHA = IHA, IL = IL, IM = IM, IS = IS,
+    IS <- data.frame(SUN_ILL = ISUN, MOON_ILL = IMOON, SUN_ZEN = SUN_ZEN, AS = AS, AZ = AZ, CB = CB, CE = CE, DR = DR, EE = EE, GG = GG, HA = HA, HH = HH, HINIT = HINIT, HR = HR, IAZ = IAZ, ID = ID, IHA = IHA, IL = IL, IM = IM, IS = IS,
                      IY = IY, JJ = JJ, LI = LI, LO = LO, LS = LS, MM = MM, NN = NN, OO = OO, PP = PP, QQ = QQ, RD = RD, SB = SB, SD = SD, SE = SE, SI = SI, SK = SK, SS = SS,
                      SV = SV, TT = TT, T_0 = T_0, UU = UU, VV = VV, WW = WW, XX = XX, YY = YY, ZT = ZT, ZZ = ZZ)
   }
