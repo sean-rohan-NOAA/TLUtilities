@@ -1,6 +1,10 @@
-#' MCorrect tag time
+#' Correct tag time in cases where offsets were incorrect
 #'
-#' Make adjustments to correct inconsistencies between tag time and survey time.
+#' For use processing AOPs from AFSC/RACE/GAP data structure. Make adjustments to correct inconsistencies between tag time and survey time.
+#' 
+#' @param light.data Data frame with light data
+#' @param cast.data Data frame containing case data.
+#' @export
 
 time_adjustments <- function(light.data, cast.data) {
   # Add vessel/cruise combination corrections for processing.

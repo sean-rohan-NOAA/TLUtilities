@@ -1,8 +1,12 @@
 #' Subsets light measurements from upcasts/downcasts
 #'
 #' Assigns light measurements to upcast or downcast based on downcast start time and downcast end time.
+#' 
+#' @param light.data Data frame with light data
+#' @param cast.data Data frame containing case data.
+#' @export
 
-vertical_profiles <- function(light.data, cast.data, ...) {
+vertical_profiles <- function(light.data, cast.data) {
 
   # Remove surface data
   light.data <- subset(light.data, cdepth >= 0)

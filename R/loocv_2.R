@@ -27,11 +27,6 @@ loocv_2 <- function(dat, var.col, lat.col, lon.col, in.proj = "+proj=longlat +da
     var.col.scaled <- scale(dat$var.col, center = center, scale = scale)
     dat$var.col <- var.col.scaled
   }
-  
-  # Define projection
-  # race.proj <- "+proj=longlat +datum=NAD83"
-  # aea.proj <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
-  # fed.proj <- sp::CRS("+init=epsg:3338 +datum=NAD83 +units=m")
 
   # Initialize raster and mask for interpolation
   # Initialize raster for interpolation on a 5 km x 5 km grid

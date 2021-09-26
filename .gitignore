@@ -34,3 +34,6 @@
 *.knit.md
 inst/doc
 doc
+
+# Archived
+/archive/

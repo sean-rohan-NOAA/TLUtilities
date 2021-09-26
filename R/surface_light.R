@@ -1,12 +1,13 @@
 #' Find surface light measurements during casts
 #'
-#' Uses cast start and end times to find concurrent measurements obtained by the deck-mounted archival tag, including a buffer. The buffer is added around the start and end times, so a 30 second buffer = one minute.
+#' For use processing AOPs from AFSC/RACE/GAP data structure. Uses cast start and end times to find concurrent measurements obtained by the deck-mounted archival tag, including a buffer. The buffer is added around the start and end times, so a 30 second buffer = one minute.
 #'
 #' @param light.data Light measurements from the surface/deck archival tag.
 #' @param cast.data Haul event times indicating the start and end times for net deployment and retrival.
 #' @param time.buffer Time buffer before and after the start of the cast.
 #' @param agg.fun Function applied to calculate central tendency metric for light measurements sampled during the cast time window. Default trawllight::geometric.mean
 #' @param ...
+#' @export
 
 
 surface_light <- function(light.data, cast.data, time.buffer = 30, agg.fun = trawllight::geometric.mean, ...) {
