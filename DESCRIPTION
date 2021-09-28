@@ -1,9 +1,9 @@
 Package: TLUtilities
 Type: Package
 Title: Useful functions for working with trawllight
-Version: 2.0.0
-Authors@R: person("Sean K.", "Rohan", email = "sean.rohan@noaa.gov", role = c("aut", "cre"))
-Maintainer: Sean K. Rohan <sean.rohan@noaa.gov>
+Version: 2.1.0
+Authors@R: person("Sean", "Rohan", email = "sean.rohan@noaa.gov", role = c("aut", "cre"))
+Maintainer: Sean Rohan <sean.rohan@noaa.gov>
 Description: This package contains functions which are used in conjunction with package trawllight.
 License: GPL (>=2)
 Encoding: UTF-8
